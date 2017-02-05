@@ -74,8 +74,8 @@ class LocalPlanner:
         # Extract relevant state variable from Odometry message
         euler = euler_from_quaternion(odom.pose.pose.orientation)
         theta = euler[2]
-        pos_x = odom.pose.pose.position.x
-        pos_y = odom.pose.pose.position.y
+        pos_x = odom.pose.pose.position.x - 0.5
+        pos_y = odom.pose.pose.position.y - 0.5
 
         v_lin = 0.
         v_ang = 0.
