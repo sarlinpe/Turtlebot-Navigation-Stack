@@ -16,6 +16,7 @@ from geometry_msgs.msg import Twist, Vector3
 from tf.transformation import euler_from_quaternion
 
 from global_planner import AStar as pathSearch, globalSmoothing
+from map_generator import MapGenerator
 
 # MAP PARAMETERS
 local_smoothing = True
@@ -56,18 +57,17 @@ class LocalPlanner:
     def __init__(self):
         rospy.Subscriber("/odom_true", Odometry, self.makePlan)
         self.pub = rospy.Publisher("/cmd_vel_mux/input/teleop", Odometry, queue_size=1)
+        self.gen = MapGenerator()
         
         # TODO: check exception is no path is found
         self.path = pathSearch(start, goal, walls, width, height)
         if not local_smoothing:
             self.path = globalSmoothing(self.path, 0.7)
-        self.pts_cnt = 1
+        self.pts_cnt = 0
         self.ctrl_state = CtrlStates.Orient
         
         self.sum_theta = 0.
         self.sum_dist = 0.
-        
-        rospy.spin()
 
 
     def makePlan(self, odom):
@@ -173,6 +173,7 @@ if __name__ == "__main__":
     rospy.init_node("local_planner", anonymous=True)
     try:
         node = Local_planner()
+        rospy.spin()
     except rospy.ROSInterruptException:
         rospy.loginfo("Shutting down node: %s", rospy.get_name())
 
