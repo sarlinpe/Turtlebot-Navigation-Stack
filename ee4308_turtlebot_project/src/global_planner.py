@@ -49,7 +49,7 @@ def buildPath(came_from, goal):
     return path
 
             
-def a_star_search(start, goal, walls, w, h):
+def AStar(start, goal, walls, w, h):
     global width, height
     width = w
     height = h
@@ -88,6 +88,23 @@ def a_star_search(start, goal, walls, w, h):
     
     raise ValueError('Goal cannot be reached')
 
+def globalSmoothing(path, alpha):
+    rate = 1
+    tol = 1e-6
+
+    smoothed = [list(pt) for pt in path] # convert from tuple to list
+    err = tol
+
+    while err >= tol:
+        err = 0
+        for i in range(1,len(path)-1):
+            for j in range(0,len(path[0])):
+                tmp = smoothed[i][j]
+                smoothed[i][j] = smoothed[i][j] + \
+                                 rate*(alpha*(path[i][j]-smoothed[i][j]) + \
+                                       (1-alpha)*(smoothed[i+1][j]+smoothed[i-1][j]-2.*smoothed[i][j]))
+                err = err + abs(tmp - smoothed[i][j])
+    return smoothed
 
 if __name__ == "__main__":
     
@@ -105,9 +122,11 @@ if __name__ == "__main__":
              (3.5,4)]
 
     try:
-        path = a_star_search(start, goal, walls, 9, 9)
+        path = AStar(start, goal, walls, 9, 9)
+        smoothed = globalSmoothing(path,0.7)
     except ValueError:
         print("No path found :(")
     else:
         print path
+        print smoothed
 
