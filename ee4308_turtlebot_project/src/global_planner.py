@@ -6,12 +6,14 @@
     
     TODO:
     - create a class that export several search algorithm (A-star, ...)
+    - Add exception if goal is outside the defined area
 """
 
 import heapq
 
 height  = None
 width   = None
+TURN_COST = 0.95
 
 class PriorityQueue:
     def __init__(self):
@@ -48,7 +50,7 @@ def buildPath(came_from, goal):
         path.insert(0, getPt(current))
     return path
 
-            
+
 def AStar(start, goal, walls, w, h):
     global width, height
     width = w
@@ -65,7 +67,6 @@ def AStar(start, goal, walls, w, h):
         current = frontier.get()
         
         if current == getIdx(goal):
-            #return came_from, cost_so_far
             return buildPath(came_from, goal)
         
         (x,y) = getPt(current)
@@ -73,13 +74,22 @@ def AStar(start, goal, walls, w, h):
         for pt in neighbors:
             (xp,yp) = pt
             if (xp < 0) or (xp >= width) or (yp < 0) or (yp >= height) \
-                        or (((x+xp)/2.,(y+yp)/2.) in walls):
+                    or (((x+xp)/2.,(y+yp)/2.) in walls):
                 neighbors.remove(pt)
                 continue
         neighbors = [getIdx(p) for p in neighbors]
         
         for next in neighbors:
-            new_cost = cost_so_far[current] + 1 # can be changed later on
+            if current != getIdx(start):
+                (x_n, y_n) = getPt(next)
+                (x_p, y_p) = getPt(came_from[current])
+                if (x_n is not x_p) and (y_n is not y_p):
+                    move_cost = TURN_COST
+                else:
+                    move_cost = 1
+            else:
+                move_cost = 1
+            new_cost = cost_so_far[current] + move_cost
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
                 priority = new_cost + heuristic(goal, getPt(next))
