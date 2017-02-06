@@ -18,8 +18,15 @@ WALLS = [(0.5,0),
          (3.5,2),
          (3.5,3)]
 
-X_OFFSET = -0.5
-Y_OFFSET = -0.5
+X_OFFSET = 0.5
+Y_OFFSET = 0.5
+
+RESOLUTION = 0.1
+WALL_THICKNESS = 0.2
+
+ORIGIN_X = 0
+ORIGIN_Y = 0
+ORIGIN_Z = 0
 
 #
 MOVE_COST = 1
