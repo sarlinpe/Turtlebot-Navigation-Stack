@@ -101,17 +101,27 @@ def AStar(start, goal, walls, w, h):
 def globalSmoothing(path, alpha):
     rate = 1
     tol = 1e-6
+    density = 4
 
-    smoothed = [list(pt) for pt in path] # convert from tuple to list
+    dense = []
+    for i in range(0,len(path)-1):
+        for d in range(0,density):
+            pt = []
+            for j in range(0,len(path[0])):
+                pt.append(((density-d)*path[i][j]+d*path[i+1][j])/float(density))
+            dense.append(tuple(pt))
+    dense.append(path[len(path)-1])
+
+    smoothed = [list(pt) for pt in dense] # convert from tuple to list
     err = tol
 
     while err >= tol:
         err = 0
-        for i in range(1,len(path)-1):
-            for j in range(0,len(path[0])):
+        for i in range(1,len(dense)-1):
+            for j in range(0,len(dense[0])):
                 tmp = smoothed[i][j]
                 smoothed[i][j] = smoothed[i][j] + \
-                                 rate*(alpha*(path[i][j]-smoothed[i][j]) + \
+                                 rate*(alpha*(dense[i][j]-smoothed[i][j]) + \
                                        (1-alpha)*(smoothed[i+1][j]+smoothed[i-1][j]-2.*smoothed[i][j]))
                 err = err + abs(tmp - smoothed[i][j])
     return smoothed
@@ -130,10 +140,10 @@ if __name__ == "__main__":
              (3.5,2),
              (3.5,3),
              (3.5,4)]
-
+    
     try:
         path = AStar(start, goal, walls, 9, 9)
-        smoothed = globalSmoothing(path,0.7)
+        smoothed = globalSmoothing(path,0.2)
     except ValueError:
         print("No path found :(")
     else:
