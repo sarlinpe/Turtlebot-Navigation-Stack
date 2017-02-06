@@ -52,8 +52,8 @@ class LocalPlanner:
             odom.pose.pose.orientation.w)
         euler = euler_from_quaternion(quaternion)
         theta = euler[2]
-        pos_x = odom.pose.pose.position.x + cfg.X_OFFSET
-        pos_y = odom.pose.pose.position.y + cfg.Y_OFFSET
+        pos_x = odom.pose.pose.position.x - cfg.X_OFFSET
+        pos_y = odom.pose.pose.position.y - cfg.Y_OFFSET
         
         v_lin = 0.
         v_ang = 0.
