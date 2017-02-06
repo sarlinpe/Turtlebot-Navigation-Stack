@@ -77,15 +77,15 @@ class MapGenerator:
         salf.path.pose[:] = []
         for i in range(len(path)):
             p = Pose()
-            
+            p.position.x = path[i][0] + x_offset
+            p.position.y = path[i][1] + y_offset
+            p_position.z = 0
             
             self.path.pose.append(p)
         
-
         # Publish messages
         self.pub_map.publish(self.map)
         self.pub_path.publish(self.path)
-        print map
 
 if __name__ == "__main__":
     width   = 9

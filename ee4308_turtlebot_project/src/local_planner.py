@@ -63,6 +63,7 @@ class LocalPlanner:
         self.path = pathSearch(start, goal, walls, width, height)
         if global_smoothing:
             self.path = globalSmoothing(self.path, 0.2)
+        self.gen.publish(walls, self.path)
         self.pts_cnt = 0
         self.ctrl_state = CtrlStates.Orient
         
