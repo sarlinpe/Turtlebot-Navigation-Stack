@@ -30,7 +30,7 @@ class PriorityQueue:
 
 def getPt(idx):
     x = idx % width
-    y = idx / width
+    y = int(idx / width)
     return (x, y)
 
 def getIdx(pt):
