@@ -10,10 +10,8 @@
 """
 
 import heapq
+import config as cfg
 
-height  = None
-width   = None
-TURN_COST = 0.95
 
 class PriorityQueue:
     def __init__(self):
@@ -29,124 +27,104 @@ class PriorityQueue:
         return heapq.heappop(self.elements)[1]
 
 def getPt(idx):
-    x = idx % width
-    y = int(idx / width)
+    x = idx % cfg.MAP_WIDTH
+    y = int(idx / cfg.MAP_WIDTH)
     return (x, y)
 
 def getIdx(pt):
-    (x,y) = pt
-    return (y * width + x)
+    (x, y) = pt
+    return (y * cfg.MAP_WIDTH + x)
 
 def heuristic(a, b):
     (x1, y1) = a
     (x2, y2) = b
     return abs(x1 - x2) + abs(y1 - y2)
 
-def buildPath(came_from, goal):
-    path = [goal]
-    current = getIdx(goal)
+def buildPath(came_from):
+    path = [cfg.GOAL]
+    current = getIdx(cfg.GOAL)
     while current:
         current = came_from[current]
         path.insert(0, getPt(current))
     return path
 
 
-def AStar(start, goal, walls, w, h):
-    global width, height
-    width = w
-    height = h
-    
+def AStar():
+
     frontier = PriorityQueue()
-    frontier.put(getIdx(start), 0)
+    frontier.put(getIdx((0,0)), 0)
     came_from = {}
     cost_so_far = {}
-    came_from[getIdx(start)] = None
-    cost_so_far[getIdx(start)] = 0
+    came_from[getIdx(cfg.START)] = None
+    cost_so_far[getIdx(cfg.START)] = 0
     
     while not frontier.empty():
         current = frontier.get()
         
-        if current == getIdx(goal):
-            return buildPath(came_from, goal)
+        if current == getIdx(cfg.GOAL):
+            return buildPath(came_from)
         
-        (x,y) = getPt(current)
-        neighbors = [(x+1,y), (x,y-1), (x-1,y), (x,y+1)]
+        (x, y) = getPt(current)
+        neighbors = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1)]
         for pt in neighbors:
-            (xp,yp) = pt
-            if (xp < 0) or (xp >= width) or (yp < 0) or (yp >= height) \
-                    or (((x+xp)/2.,(y+yp)/2.) in walls):
+            (xp, yp) = pt
+            if (xp < 0) or (xp >= cfg.MAP_WIDTH) or (yp < 0) or (yp >= cfg.MAP_HEIGTH) \
+                    or ((( x + xp) / 2., (y + yp) / 2.) in cfg.WALLS):
                 neighbors.remove(pt)
                 continue
         neighbors = [getIdx(p) for p in neighbors]
         
         for next in neighbors:
-            if current != getIdx(start):
+            if current != getIdx(cfg.START):
                 (x_n, y_n) = getPt(next)
                 (x_p, y_p) = getPt(came_from[current])
                 if (x_n is not x_p) and (y_n is not y_p):
-                    move_cost = TURN_COST
+                    move_cost = cfg.TURN_COST
                 else:
-                    move_cost = 1
+                    move_cost = cfg.MOVE_COST
             else:
-                move_cost = 1
+                move_cost = cfg.MOVE_COST
             new_cost = cost_so_far[current] + move_cost
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
-                priority = new_cost + heuristic(goal, getPt(next))
+                priority = new_cost + heuristic(cfg.GOAL, getPt(next))
                 frontier.put(next, priority)
                 came_from[next] = current
     
     raise ValueError('Goal cannot be reached')
 
-def globalSmoothing(path, alpha):
-    rate = 1
-    tol = 1e-6
-    density = 4
-
+def globalSmoothing(path):
     dense = []
-    for i in range(0,len(path)-1):
-        for d in range(0,density):
+    for i in range(0, len(path) - 1):
+        for d in range(0, cfg.SMOOTHING_DENSITY):
             pt = []
-            for j in range(0,len(path[0])):
-                pt.append(((density-d)*path[i][j]+d*path[i+1][j])/float(density))
+            for j in range(0, len(path[0])):
+                pt.append(((cfg.SMOOTHING_DENSITY - d) * path[i][j] + d * path[i + 1][j]) / float(cfg.SMOOTHING_DENSITY))
             dense.append(tuple(pt))
-    dense.append(path[len(path)-1])
+    dense.append(path[len(path) - 1])
 
     smoothed = [list(pt) for pt in dense] # convert from tuple to list
-    err = tol
+    err = cfg.SMOOTHING_TOL
 
-    while err >= tol:
+    while err >= cfg.SMOOTHING_TOL:
         err = 0
-        for i in range(1,len(dense)-1):
-            for j in range(0,len(dense[0])):
+        for i in range(1, len(dense) - 1):
+            for j in range(0, len(dense[0])):
                 tmp = smoothed[i][j]
                 smoothed[i][j] = smoothed[i][j] + \
-                                 rate*(alpha*(dense[i][j]-smoothed[i][j]) + \
-                                       (1-alpha)*(smoothed[i+1][j]+smoothed[i-1][j]-2.*smoothed[i][j]))
+                    cfg.SMOOTHING_RATE * (cfg.ALPHA * (dense[i][j] - smoothed[i][j]) + 
+                    (1 - cfg.ALPHA) * (smoothed[i + 1][j] + 
+                    smoothed[i - 1][j] - 2. * smoothed[i][j]))
                 err = err + abs(tmp - smoothed[i][j])
     return smoothed
 
 if __name__ == "__main__":
     
-    start = (0,0)
-    goal = (4,4)
-    walls = [(0.5,0),
-             (0.5,2),
-             (0.5,3),
-             (1.5,0),
-             (1.5,1),
-             (3.5,0),
-             (3.5,1),
-             (3.5,2),
-             (3.5,3),
-             (3.5,4)]
-    
     try:
-        path = AStar(start, goal, walls, 9, 9)
-        smoothed = globalSmoothing(path,0.2)
+        path = AStar()
+        smoothed = globalSmoothing(path)
     except ValueError:
         print("No path found :(")
     else:
         print path
         print smoothed
-
