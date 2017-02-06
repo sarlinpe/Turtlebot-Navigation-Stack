@@ -52,7 +52,7 @@ def buildPath(came_from):
 def AStar():
 
     frontier = PriorityQueue()
-    frontier.put(getIdx((0,0)), 0)
+    frontier.put(getIdx((cfg.START)), 0)
     came_from = {}
     cost_so_far = {}
     came_from[getIdx(cfg.START)] = None
