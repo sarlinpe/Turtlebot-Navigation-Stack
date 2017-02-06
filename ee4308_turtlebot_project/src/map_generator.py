@@ -7,14 +7,15 @@
 """
 
 import rospy
-from nav_msgs.msg import OccupancyGrid, Path, Pose
+from nav_msgs.msg import OccupancyGrid, Path
+from geometry_msgs.msg import PoseStamped
 from math import floor
 
 
 class MapGenerator:
     def __init__(self):
-        self.pub_map = rospy.Publisher("/map", OccupancyGrid, queue_size=1)
-        self.pub_path = rospy.Publisher("/path", Path, queue_size=1)
+        self.pub_map = rospy.Publisher("/map", OccupancyGrid, queue_size=1, latch=True)
+        self.pub_path = rospy.Publisher("/path", Path, queue_size=1, latch=True)
     
         # TODO: get parameters from rosparam server
         self.width = 6
@@ -23,14 +24,16 @@ class MapGenerator:
         self.wall_thickness = 0.2
 
         self.map = OccupancyGrid()
+        self.map.header.frame_id = "1"
         self.map.info.resolution = self.resolution
-        self.map.info.width = self.width/self.resolution
-        self.map.info.height = self.height/self.resolution
+        self.map.info.width = int(self.width/self.resolution)
+        self.map.info.height = int(self.height/self.resolution)
         self.map.info.origin.position.x = 0.
         self.map.info.origin.position.y = 0.
         self.map.info.origin.position.z = 0.
     
         self.path = Path() # May need to set a frame here...
+        self.path.header.frame_id = "1"
 
     def publish(self, walls, path):
         offset_x = 0.5
@@ -58,34 +61,35 @@ class MapGenerator:
                 # Wall is vertical
                 x += offset_x
                 y += offset_y
-                for i in range(1/self.resolution):
-                    map[x/self.resoltion][(y-0.5)/self.resolution+i] = 100
-                    map[x/self.resoltion-1][(y-0.5)/self.resolution+i] = 100
+                for i in range(int(1/self.resolution)):
+                    map[int(x/self.resolution)][int((y-0.5)/self.resolution+i)] = 100
+                    map[int(x/self.resolution-1)][int((y-0.5)/self.resolution+i)] = 100
 
             else:
                 # Wall is horizontal
                 x += offset_x
                 y += offset_y
-                for i in range(1/self.resolution):
-                    map[(x-0.5)/self.resolution+i][y/self.resoltion] = 100
-                    map[(x-0.5)/self.resolution+i][y/self.resoltion-1] = 100
+                for i in range(int(1/self.resolution)):
+                    map[int((x-0.5)/self.resolution+i)][int(y/self.resolution)] = 100
+                    map[int((x-0.5)/self.resolution+i)][int(y/self.resolution-1)] = 100
 
         # Flatten map to self.map.data in a row-major order
         self.map.data = sum(map,[])
 
         # Construct Path message
-        salf.path.pose[:] = []
+        self.path.poses[:] = []
         for i in range(len(path)):
-            p = Pose()
-            p.position.x = path[i][0] + x_offset
-            p.position.y = path[i][1] + y_offset
-            p_position.z = 0
+            p = PoseStamped()
+            p.pose.position.x = path[i][0] + offset_x
+            p.pose.position.y = path[i][1] + offset_y
+            p.pose.position.z = 0
             
-            self.path.pose.append(p)
+            self.path.poses.append(p)
         
         # Publish messages
         self.pub_map.publish(self.map)
         self.pub_path.publish(self.path)
+        rospy.loginfo("Publishing map and path.")
 
 if __name__ == "__main__":
     width   = 9
