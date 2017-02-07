@@ -35,9 +35,9 @@ class LocalPlanner:
         self.path = pathSearch()
         if cfg.GLOBAL_SMOOTHING:
             self.path = globalSmoothing(self.path)
-        self.gen.publish(cfg.WALLS, self.path)
         self.pts_cnt = 0
         self.ctrl_state = CtrlStates.Orient
+        self.gen.publish(self.path)
         
         self.sum_theta = 0.
         self.sum_dist = 0.
@@ -126,8 +126,8 @@ class LocalPlanner:
                     self.sum_theta += err_theta[0]
                     self.sum_dist += err_dist[0]
                 
-                v_ang = cfg.K_P_ORIENT * err_theta_tot + K_I_ORIENT * self.sum_theta
-                v_lin = cfg.K_P_DIST * err_dist_tot + K_I_DIST * self.sum_dist
+                v_ang = cfg.K_P_ORIENT * err_theta_tot + cfg.K_I_ORIENT * self.sum_theta
+                v_lin = cfg.K_P_DIST * err_dist_tot + cfg.K_I_DIST * self.sum_dist
         
         # Wait for a new goal point
         else:

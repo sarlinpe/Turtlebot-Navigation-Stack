@@ -19,16 +19,16 @@ class MapGenerator:
         self.pub_path = rospy.Publisher("/path", Path, queue_size=1, latch=True)
     
         self.map = OccupancyGrid()
-        self.map.header.frame_id = "1"
+        self.map.header.frame_id = "world"
         self.map.info.resolution = cfg.RESOLUTION
-        self.map.info.width = int(cfg.WIDTH / cfg.RESOLUTION)
-        self.map.info.height = int(cfg.HEIGTH / cfg.RESOLUTION)
+        self.map.info.width = int(cfg.MAP_WIDTH / cfg.RESOLUTION)
+        self.map.info.height = int(cfg.MAP_HEIGTH / cfg.RESOLUTION)
         self.map.info.origin.position.x = cfg.ORIGIN_X
         self.map.info.origin.position.y = cfg.ORIGIN_Y
         self.map.info.origin.position.z = cfg.ORIGIN_Z
     
-        self.path = Path() # May need to set a frame here...
-        self.path.header.frame_id = "1"
+        self.path = Path()
+        self.path.header.frame_id = "world"
 
     def publish(self, path):
 
@@ -41,7 +41,7 @@ class MapGenerator:
             map.append(row)
 
         # Add border by setting pixels to 100
-        for i in range(self.map.info.height):                                        ##Can 100 be set as a parameter?
+        for i in range(self.map.info.height):
             map[i][0] = 100
             map[i][self.map.info.width - 1] = 100
         for j in range(self.map.info.width):
@@ -50,22 +50,26 @@ class MapGenerator:
 
         # Iterate through the walls, set the pixels accordingly
         for (x, y) in cfg.WALLS:
-            y += cfg.Y_OFFSET
-            x += cfg.X_OFFSET
             if (y % 1) == 0:
                 # Wall is vertical
+                y += cfg.Y_OFFSET
+                x += cfg.X_OFFSET
                 for i in range(int(1 / cfg.RESOLUTION)):
-                    map[int(x / cfg.RESOLUTION)][int((y - 0.5) / cfg.RESOLUTION + i)] = 100       ##(y-0.5) due to offset??? in that case cfg.Y_OFFSET
-                    map[int(x / cfg.RESOLUTION - 1)][int((y - 0.5) / cfg.RESOLUTION + i)] = 100     ##Same as above
-
+                    map[int(x / cfg.RESOLUTION)][int((y - cfg.Y_OFFSET) / cfg.RESOLUTION + i)] = 100
+                    map[int(x / cfg.RESOLUTION - 1)][int((y - cfg.Y_OFFSET) / cfg.RESOLUTION + i)] = 100
             else:
                 # Wall is horizontal
+                y += cfg.Y_OFFSET
+                x += cfg.X_OFFSET
                 for i in range(int(1 / cfg.RESOLUTION)):
-                    map[int((x - 0.5) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION)] = 100         ##same for (x-0.5)
-                    map[int((x - 0.5) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION - 1)] = 100
+                    map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION)] = 100
+                    map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION - 1)] = 100
 
         # Flatten map to self.map.data in a row-major order
-        self.map.data = sum(map,[])
+        #self.map.data = sum(map,[])
+        for i in range(len(map)):
+            for j in range(len(map[0])):
+                self.map.data.append(map[j][i])
 
         # Construct Path message
         self.path.poses[:] = []

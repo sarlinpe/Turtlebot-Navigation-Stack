@@ -24,11 +24,11 @@ WALLS = [(0.5,0), #begin vertical walls
          (5.5,2),
          (5.5,3),
          (5.5,4),
+         (5.5,5),
          (7.5,1),
          (7.5,2),
          (7.5,3),
          (7.5,6),
-         
          (0,6.5), #begin horisontal walls
          (1,3.5),
          (1,6.5),
@@ -38,7 +38,7 @@ WALLS = [(0.5,0), #begin vertical walls
          (5,5.5),
          (8,0.5),
          (8,6.5),
-         ]
+         (1,1.5)]
 
 X_OFFSET = 0.5
 Y_OFFSET = 0.5
@@ -52,11 +52,11 @@ ORIGIN_Z = 0
 
 #
 MOVE_COST = 1
-TURN_COST = 0.95 
+TURN_COST = 0.95
 
 #SMOOTHING PARAMETERS
 LOCAL_SMOOTHING = False
-GLOBAL_SMOOTHING = True
+GLOBAL_SMOOTHING =  True
 
 SMOOTH_NB_PTS   = 4
 SMOOTH_WEIGHTS  = [4, 3, 1, 1]

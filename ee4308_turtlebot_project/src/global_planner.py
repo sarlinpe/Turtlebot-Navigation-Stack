@@ -41,11 +41,11 @@ def heuristic(a, b):
     return abs(x1 - x2) + abs(y1 - y2)
 
 def buildPath(came_from):
-    path = [cfg.GOAL]
+    path = []
     current = getIdx(cfg.GOAL)
-    while current:
-        current = came_from[current]
+    while current is not None:
         path.insert(0, getPt(current))
+        current = came_from[current]
     return path
 
 
@@ -66,13 +66,13 @@ def AStar():
         
         (x, y) = getPt(current)
         neighbors = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1)]
-        for pt in neighbors:
+        rem = []
+        for pt in neighbors:       
             (xp, yp) = pt
             if (xp < 0) or (xp >= cfg.MAP_WIDTH) or (yp < 0) or (yp >= cfg.MAP_HEIGTH) \
                     or ((( x + xp) / 2., (y + yp) / 2.) in cfg.WALLS):
-                neighbors.remove(pt)
-                continue
-        neighbors = [getIdx(p) for p in neighbors]
+                rem.append(pt)
+        neighbors = [getIdx(pt) for pt in neighbors if pt not in rem]
         
         for next in neighbors:
             if current != getIdx(cfg.START):
