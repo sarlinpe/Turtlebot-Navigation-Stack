@@ -1,19 +1,13 @@
 #!/usr/bin/env python
 
-"""
-    Would be nice to publish the map and the path as rostopics that can be visualized in RViz.
-    http://docs.ros.org/api/nav_msgs/html/msg/OccupancyGrid.html
-    http://docs.ros.org/api/nav_msgs/html/msg/Path.html
-"""
-
-import config as cfg
 import rospy
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PoseStamped
 from math import floor
+import config as cfg
 
 
-class MapGenerator:
+class RvizInterface:
     def __init__(self):
         self.pub_map = rospy.Publisher("/map", OccupancyGrid, queue_size=1, latch=True)
         self.pub_path = rospy.Publisher("/path", Path, queue_size=1, latch=True)
@@ -30,8 +24,22 @@ class MapGenerator:
         self.path = Path()
         self.path.header.frame_id = "world"
 
-    def publish(self, path):
 
+def publishPath(self, path):
+    # Construct Path message
+    self.path.poses[:] = []
+    for i in range(len(path)):
+        p = PoseStamped()
+        p.pose.position.x = path[i][0] + cfg.X_OFFSET
+        p.pose.position.y = path[i][1] + cfg.Y_OFFSET
+        p.pose.position.z = 0
+        self.path.poses.append(p)
+    # Publish
+    self.pub_path.publish(self.path)
+    rospy.loginfo("Published path.")
+
+
+def publishMap(self):
         # Initialize 2D map with zeros
         map = []
         for i in range(self.map.info.height):
@@ -66,25 +74,12 @@ class MapGenerator:
                     map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION - 1)] = 100
 
         # Flatten map to self.map.data in a row-major order
-        #self.map.data = sum(map,[])
         for i in range(len(map)):
             for j in range(len(map[0])):
                 self.map.data.append(map[j][i])
-
-        # Construct Path message
-        self.path.poses[:] = []
-        for i in range(len(path)):
-            p = PoseStamped()
-            p.pose.position.x = path[i][0] + cfg.X_OFFSET
-            p.pose.position.y = path[i][1] + cfg.Y_OFFSET
-            p.pose.position.z = 0
-            
-            self.path.poses.append(p)
-        
-        # Publish messages
+        # Publish
         self.pub_map.publish(self.map)
-        self.pub_path.publish(self.path)
-        rospy.loginfo("Publishing map and path.")
+        rospy.loginfo("Published map.")
 
 if __name__ == "__main__":
     width   = 9
@@ -112,5 +107,5 @@ if __name__ == "__main__":
             (3,5),
             (4,5),
             (4,4)]
-    m = MapGenerator()
+    m = RvizInterface()
     m.publish(walls,path)

@@ -1,23 +1,17 @@
 #!/usr/bin/env python
 
 """
-    See turtlebot_control.cpp in `/doc` for a C++ implementation of PI controller from Lab2
-    
     TODO:
-    - add the map parameters (wall, height, width) in a ros_param server
-    - generate map and path for RViz
+    - switch from Move to Orient if the orientation error is too big (if no global smoothing)
     - change this simple node to an action node in order to allow the goal to be sent from RViz
 """
 
-import config as cfg
 import rospy
 from math import atan2, sqrt, pow, pi
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist, Vector3
+from geometry_msgs.msg import Twist
 from tf.transformations import euler_from_quaternion
-
-from global_planner import AStar as pathSearch, globalSmoothing
-from map_generator import MapGenerator
+import config as cfg
 
 
 class CtrlStates:
@@ -25,25 +19,13 @@ class CtrlStates:
 
 
 class LocalPlanner:
-
     def __init__(self):
-        rospy.Subscriber("/odom_true", Odometry, self.makePlan)
-        self.pub = rospy.Publisher("/cmd_vel_mux/input/teleop", Twist, queue_size=1)
-        self.gen = MapGenerator()
-        
-        # TODO: check exception if no path is found
-        self.path = pathSearch()
-        if cfg.GLOBAL_SMOOTHING:
-            self.path = globalSmoothing(self.path)
         self.pts_cnt = 0
         self.ctrl_state = CtrlStates.Orient
-        self.gen.publish(self.path)
-        
         self.sum_theta = 0.
         self.sum_dist = 0.
 
-
-    def makePlan(self, odom):
+    def control(self, odom):
         # Extract relevant state variable from Odometry message
         quaternion = (
             odom.pose.pose.orientation.x,
@@ -91,10 +73,6 @@ class LocalPlanner:
                 err_theta.append(self.checkAngle(err_theta_raw))
                 err_dist.append(sqrt(pow(x - pos_x, 2) + pow(y - pos_y, 2)))
             
-            # TODO:
-            # - check if any point is under the tolerance -> shift pts_cnt
-            # - computer v_lin and v_ang with a defined PI control law
-            
             if err_dist[0] < cfg.TOL_DIST :
                 if self.pts_cnt == (len(self.path) - 1):
                     self.ctrl_state = CtrlStates.Wait
@@ -104,8 +82,6 @@ class LocalPlanner:
                     self.sum_dist = 0.
                     # should be try a new iteration with the next points ?
             else:
-                # try P-controller first, implement I later
-                
                 if cfg.LOCAL_SMOOTHING:
                     err_theta_tot = 0
                     err_theta_scaling = 0
@@ -128,16 +104,14 @@ class LocalPlanner:
                 
                 v_ang = cfg.K_P_ORIENT * err_theta_tot + cfg.K_I_ORIENT * self.sum_theta
                 v_lin = cfg.K_P_DIST * err_dist_tot + cfg.K_I_DIST * self.sum_dist
-        
+    
         # Wait for a new goal point
         else:
             pass
-        cmd = Twist()
-        cmd.linear.x = v_lin
-        cmd.angular.z = v_ang
-        self.pub.publish(cmd)
-
-
+        
+        return (v_lin, v_ang)
+        
+        
     def checkAngle(self, theta):
         if theta > pi:
             return(theta - 2 * pi)
@@ -145,13 +119,3 @@ class LocalPlanner:
             return(theta + 2 * pi)
         else:
             return(theta)
-
-
-if __name__ == "__main__":
-    rospy.init_node("local_planner", anonymous=True)
-    try:
-        node = LocalPlanner()
-        rospy.spin()
-    except rospy.ROSInterruptException:
-        rospy.loginfo("Shutting down node: %s", rospy.get_name())
-
