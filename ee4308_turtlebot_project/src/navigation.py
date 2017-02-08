@@ -15,7 +15,6 @@ pose = None
 
 def update(self, odom_msg):
     global pose
-    
     cmd = Twist()
     
     if cfg.GOAL is None:

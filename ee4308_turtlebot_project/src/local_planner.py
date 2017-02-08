@@ -15,9 +15,6 @@ class CtrlStates:
 
 
 class LocalPlanner:
-    def __init__(self):
-        pass
-    
     def reset(self, path):
         self.pts_cnt = 0
         self.ctrl_state = CtrlStates.Orient
@@ -62,7 +59,7 @@ class LocalPlanner:
                 err_theta_raw = atan2(y - pos_y, x - pos_x) - theta
                 err_theta.append(self.checkAngle(err_theta_raw))
                 err_dist.append(sqrt(pow(x - pos_x, 2) + pow(y - pos_y, 2)))
-            
+        
             if err_dist[0] < cfg.TOL_DIST :
                 if self.pts_cnt == (len(self.path) - 1):
                     self.ctrl_state = CtrlStates.Wait
@@ -70,7 +67,10 @@ class LocalPlanner:
                     self.pts_cnt += 1
                     self.sum_theta = 0. # should we reset the controller or not ?
                     self.sum_dist = 0.
-                    # should be try a new iteration with the next points ?
+            elif abs(err_theta[0]) > cgf.THR_ORIENT:
+                self.ctrl_state = CtrlStates.Move
+                self.sum_theta = 0.
+                self.sum_dist = 0.
             else:
                 if cfg.LOCAL_SMOOTHING:
                     err_theta_tot = 0

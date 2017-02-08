@@ -2,6 +2,8 @@
     Configuration file for python
 """
 
+from math import radians as rad
+
 # MAP PARAMETERS
 KNOWN_MAP = True
 MAP_WIDTH   = 9
@@ -57,7 +59,7 @@ COST_TURN = 0.95
 
 
 # SMOOTHING PARAMETERS
-LOCAL_SMOOTHING = False
+LOCAL_SMOOTHING  = False
 GLOBAL_SMOOTHING =  True
 
 SMOOTH_NB_PTS   = 4
@@ -72,6 +74,7 @@ SMOOTHING_DENSITY = 4
 # CONTROL PARAMETERS
 TOL_ORIENT  = 0.01
 TOL_DIST    = 0.1
+THR_ORIENT  = rad(45)
 K_P_ORIENT  = 0.8
 K_P_DIST    = 0.6
 K_I_ORIENT  = 5e-4
