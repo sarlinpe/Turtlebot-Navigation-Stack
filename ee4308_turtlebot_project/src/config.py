@@ -1,8 +1,8 @@
 """
-    Config file for python
+    Configuration file for python
 """
 
-#MAP PARAMETERS
+# MAP PARAMETERS
 KNOWN_MAP = True
 MAP_WIDTH   = 9
 MAP_HEIGTH  = 9
@@ -29,7 +29,7 @@ WALLS = [(0.5,0), #begin vertical walls
          (7.5,2),
          (7.5,3),
          (7.5,6),
-         (0,6.5), #begin horisontal walls
+         (0,6.5), #begin horizontal walls
          (1,3.5),
          (1,6.5),
          (2,5.5),
@@ -50,11 +50,13 @@ ORIGIN_X = 0
 ORIGIN_Y = 0
 ORIGIN_Z = 0
 
-#
-MOVE_COST = 1
-TURN_COST = 0.95
 
-#SMOOTHING PARAMETERS
+# PATH FINDING PARAMETERS
+COST_MOVE = 1
+COST_TURN = 0.95
+
+
+# SMOOTHING PARAMETERS
 LOCAL_SMOOTHING = False
 GLOBAL_SMOOTHING =  True
 
