@@ -6,11 +6,7 @@
     - change this simple node to an action node in order to allow the goal to be sent from RViz
 """
 
-import rospy
 from math import atan2, sqrt, pow, pi
-from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist
-from tf.transformations import euler_from_quaternion
 import config as cfg
 
 
@@ -20,23 +16,17 @@ class CtrlStates:
 
 class LocalPlanner:
     def __init__(self):
+        pass
+    
+    def reset(self, path):
         self.pts_cnt = 0
         self.ctrl_state = CtrlStates.Orient
         self.sum_theta = 0.
         self.sum_dist = 0.
+        self.path = path
 
-    def control(self, odom):
-        # Extract relevant state variable from Odometry message
-        quaternion = (
-            odom.pose.pose.orientation.x,
-            odom.pose.pose.orientation.y,
-            odom.pose.pose.orientation.z,
-            odom.pose.pose.orientation.w)
-        euler = euler_from_quaternion(quaternion)
-        theta = euler[2]
-        pos_x = odom.pose.pose.position.x - cfg.X_OFFSET
-        pos_y = odom.pose.pose.position.y - cfg.Y_OFFSET
-        
+
+    def update(self, pos_x, pos_y , theta):
         v_lin = 0.
         v_ang = 0.
         
