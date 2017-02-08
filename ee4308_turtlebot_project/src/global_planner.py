@@ -50,7 +50,6 @@ def buildPath(came_from):
 
 
 def AStar():
-
     frontier = PriorityQueue()
     frontier.put(getIdx((cfg.START)), 0)
     came_from = {}
@@ -79,11 +78,11 @@ def AStar():
                 (x_n, y_n) = getPt(next)
                 (x_p, y_p) = getPt(came_from[current])
                 if (x_n is not x_p) and (y_n is not y_p):
-                    move_cost = cfg.TURN_COST
+                    move_cost = cfg.COST_TURN
                 else:
-                    move_cost = cfg.MOVE_COST
+                    move_cost = cfg.COST_MOVE
             else:
-                move_cost = cfg.MOVE_COST
+                move_cost = cfg.COST_MOVE
             new_cost = cost_so_far[current] + move_cost
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
@@ -92,6 +91,7 @@ def AStar():
                 came_from[next] = current
     
     raise ValueError('Goal cannot be reached')
+
 
 def globalSmoothing(path):
     dense = []
@@ -118,8 +118,8 @@ def globalSmoothing(path):
                 err = err + abs(tmp - smoothed[i][j])
     return smoothed
 
+
 if __name__ == "__main__":
-    
     try:
         path = AStar()
         smoothed = globalSmoothing(path)
