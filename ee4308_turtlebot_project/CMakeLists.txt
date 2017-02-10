@@ -5,9 +5,17 @@ project(ee4308_turtlebot_project)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+    std_msgs
 	geometry_msgs
 	nav_msgs
-	gazebo_msgs)
+	gazebo_msgs
+    sensor_msgs 
+    message_filters 
+#    OpenCV
+#    cv_bridge 
+#    image_transport
+    rospy
+    roscpp)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -111,7 +119,11 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-# include_directories(include)
+include_directories(include
+    ${catkin_INCLUDE_DIRS}
+#    ${Boost_INCLUDE_DIRS}
+#    ${OpenCV_INCLUDE_DIRS}
+)
 
 ## Declare a C++ library
 # add_library(ee4308_turtlebot_project
@@ -124,16 +136,18 @@ catkin_package(
 # add_dependencies(ee4308_turtlebot_project ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(ee4308_turtlebot_project_node src/ee4308_turtlebot_project_node.cpp)
+#add_executable(turtlebot_ee4308_obs_detection_node src/turtlebot_ee4308_obs_avoidance.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(ee4308_turtlebot_project_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(ee4308_turtlebot_project_node
-#   ${catkin_LIBRARIES}
-# )
+#target_link_libraries(turtlebot_ee4308_obs_detection_node
+#    ${catkin_LIBRARIES}
+#    ${OpenCV_LIBRARIES}
+#)
+
 
 #############
 ## Install ##
