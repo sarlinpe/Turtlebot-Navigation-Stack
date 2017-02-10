@@ -8,8 +8,8 @@ from math import radians as rad
 KNOWN_MAP = True
 MAP_WIDTH   = 9
 MAP_HEIGTH  = 9
-START   = (0,0)
-GOAL    = (4,3)
+START   = None
+GOAL    = (4,4)
 WALLS = [(0.5,0), #begin vertical walls
          (0.5,2),
          (0.5,3),
@@ -39,8 +39,7 @@ WALLS = [(0.5,0), #begin vertical walls
          (4,5.5),
          (5,5.5),
          (8,0.5),
-         (8,6.5),
-         (1,1.5)]
+         (8,6.5)]
 
 X_OFFSET = 0.5
 Y_OFFSET = 0.5
@@ -59,12 +58,12 @@ COST_TURN = 0.95
 
 
 # SMOOTHING PARAMETERS
+#Disable for part 2 and dynamic path planning
 LOCAL_SMOOTHING  = False
-GLOBAL_SMOOTHING =  True
-
 SMOOTH_NB_PTS   = 4
-SMOOTH_WEIGHTS  = [4, 3, 1, 1]
+SMOOTH_WEIGHTS  = [5, 3, 2, 1]
 
+GLOBAL_SMOOTHING =  True
 SMOOTHING_TOL = 1E-6
 ALPHA = 0.2
 SMOOTHING_RATE = 1

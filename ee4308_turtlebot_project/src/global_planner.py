@@ -90,7 +90,7 @@ def AStar():
                 frontier.put(next, priority)
                 came_from[next] = current
     
-    raise ValueError('Goal cannot be reached')
+    raise ValueError('Goal '+str(cfg.GOAL)+'cannot be reached from'+str(cfg.START))
 
 
 def globalSmoothing(path):

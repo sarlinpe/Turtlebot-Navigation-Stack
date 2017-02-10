@@ -2,68 +2,84 @@
 
 import rospy
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import Twist, PosedStamped
+from geometry_msgs.msg import Twist, PoseStamped
 from tf.transformations import euler_from_quaternion
+from math import cos, sin
 
 from local_planner import LocalPlanner
 from global_planner import AStar as pathSearch, globalSmoothing
-from map_generator import MapGenerator
+from rviz_interface import RvizInterface
 import config as cfg
 
 pose = None
 
 
-def update(self, odom_msg):
-    global pose
+def update(odom_msg):
+    global pose, init
     cmd = Twist()
     
+    pose = extract_pose(odom_msg)
+    if not init:
+        initialise_path()
+        init = True
+
     if cfg.GOAL is None:
         (v_lin, v_ang) = (0,0)
     else:
-        # Extract relevant state variable from Odometry message
-        quaternion = (odom.pose.pose.orientation.x,
-                      odom.pose.pose.orientation.y,
-                      odom.pose.pose.orientation.z,
-                      odom.pose.pose.orientation.w)
-        euler = euler_from_quaternion(quaternion)
-        theta = euler[2]
-        pos_x = odom.pose.pose.position.x - cfg.X_OFFSET
-        pos_y = odom.pose.pose.position.y - cfg.Y_OFFSET
-        pose = (pos_x, pos_y, theta)
-        (v_lin, v_ang) = controller.update(pose_x, pose_y, theta)
+        (v_lin, v_ang) = controller.update(pose[0], pose[1], pose[2])
 
     cmd.linear.x = v_lin
     cmd.angular.z = v_ang
     pub.publish(cmd)
-
     visualisation.publishPath(path)
 
+def extract_pose(odom_msg):
+    # Extract relevant state variable from Odometry message
+    quaternion = (odom_msg.pose.pose.orientation.x,
+                  odom_msg.pose.pose.orientation.y,
+                  odom_msg.pose.pose.orientation.z,
+                  odom_msg.pose.pose.orientation.w)
+    euler = euler_from_quaternion(quaternion)
+    theta = euler[2]
+    pos_x = odom_msg.pose.pose.position.x - cfg.X_OFFSET
+    pos_y = odom_msg.pose.pose.position.y - cfg.Y_OFFSET
+    return (pos_x, pos_y, theta)
 
-def new_goal(slef, goal_msg):
-    x = goal_msg.pose.position.x  - cfg.X_OFFSET
-    y = goal_msg.pose.position.y  - cfg.Y_OFFSET
-    
+
+def new_goal(goal_msg):
+    global init
+    x_g = goal_msg.pose.position.x
+    y_g = goal_msg.pose.position.y
+    #rospy.loginfo("Received new goal: %s", (x_g,y_g))
+    #rospy.loginfo("Position is now: %s", (pose[0],pose[1]))
+    x = pose[0] + cfg.X_OFFSET + x_g*cos(pose[2]) - y_g*sin(pose[2])
+    y = pose[1] + cfg.Y_OFFSET + y_g*cos(pose[2]) + x_g*sin(pose[2])
+    #rospy.loginfo("Absolute goal: %s", (x,y))
+
     if (x < 0) or (x >= cfg.MAP_WIDTH) or (y < 0) or (y >= cfg.MAP_HEIGTH):
         cfg.GOAL = None
         rospy.logerr("Goal is out of the working area.")
         return
     
-    x = goal_msg.pose.position.x  - cfg.X_OFFSET
-    y = goal_msg.pose.position.y  - cfg.Y_OFFSET
-    cfg.GOAL = (int(round(x)),int(rount(y)))
-    cfg.START = (pose[0], pose[1])
+    cfg.GOAL = (int(round(x - cfg.X_OFFSET)),int(round(y - cfg.Y_OFFSET)))
+    rospy.loginfo("New goal set: %s", cfg.GOAL)
     initialise_path()
+    visualisation.publishPath(path)
+    init = False
 
 
 def initialise_path():
+    global path
+    cfg.START = (int(round(pose[0])), int(round(pose[1])))
+    rospy.loginfo("Computing path with start %s and goal %s", cfg.START, cfg.GOAL)
     path = pathSearch()
     if cfg.GLOBAL_SMOOTHING:
         path = globalSmoothing(path)
-    controller.reset(path)
+    controller.reset(path, pose)
 
 
 if __name__ == "__main__":
-    global pub, path, controller, visualisation
+    global pub, controller, visualisation, init
     rospy.init_node("navigation", anonymous=True)
     rospy.Subscriber("/odom_true", Odometry, update)
     rospy.Subscriber("/move_base_simple/goal", PoseStamped, new_goal)
@@ -72,8 +88,7 @@ if __name__ == "__main__":
     controller = LocalPlanner()
     visualisation = RvizInterface()
     visualisation.publishMap()
-    
-    initialise_path()
+    init = False
     
     try:
         rospy.spin()
