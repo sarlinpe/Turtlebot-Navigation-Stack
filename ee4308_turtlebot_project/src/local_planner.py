@@ -99,7 +99,7 @@ class LocalPlanner:
                 else:
                     v_ang = cfg.K_P_ORIENT * err_theta_tot + cfg.K_I_ORIENT * self.sum_theta
                     v_lin = cfg.K_P_DIST * err_dist_tot + cfg.K_I_DIST * self.sum_dist
-
+#Should we check that the speed is within a limit (max_speed) to make sure it doesnt run away if it where to get to long away from a point?
         return (v_lin, v_ang)
         
 
