@@ -7,7 +7,7 @@ from math import radians as rad
 # MAP PARAMETERS
 KNOWN_MAP = True
 MAP_WIDTH   = 9
-MAP_HEIGTH  = 9
+MAP_HEIGHT  = 9
 START   = None
 GOAL    = (4,4)
 WALLS = [(0.5,0), #begin vertical walls

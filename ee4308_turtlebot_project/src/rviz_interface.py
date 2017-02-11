@@ -16,7 +16,7 @@ class RvizInterface:
         self.map.header.frame_id = "world"
         self.map.info.resolution = cfg.RESOLUTION
         self.map.info.width = int(cfg.MAP_WIDTH / cfg.RESOLUTION)
-        self.map.info.height = int(cfg.MAP_HEIGTH / cfg.RESOLUTION)
+        self.map.info.height = int(cfg.MAP_HEIGHT / cfg.RESOLUTION)
         self.map.info.origin.position.x = cfg.ORIGIN_X
         self.map.info.origin.position.y = cfg.ORIGIN_Y
         self.map.info.origin.position.z = cfg.ORIGIN_Z

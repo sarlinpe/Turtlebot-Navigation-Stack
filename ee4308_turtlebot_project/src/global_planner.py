@@ -68,7 +68,7 @@ def AStar():
         rem = []
         for pt in neighbors:       
             (xp, yp) = pt
-            if (xp < 0) or (xp >= cfg.MAP_WIDTH) or (yp < 0) or (yp >= cfg.MAP_HEIGTH) \
+            if (xp < 0) or (xp >= cfg.MAP_WIDTH) or (yp < 0) or (yp >= cfg.MAP_HEIGHT) \
                     or ((( x + xp) / 2., (y + yp) / 2.) in cfg.WALLS):
                 rem.append(pt)
         neighbors = [getIdx(pt) for pt in neighbors if pt not in rem]
