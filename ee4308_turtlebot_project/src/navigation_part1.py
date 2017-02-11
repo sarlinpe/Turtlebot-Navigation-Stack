@@ -56,7 +56,7 @@ def new_goal(goal_msg):
     y = pose[1] + cfg.Y_OFFSET + y_g*cos(pose[2]) + x_g*sin(pose[2])
     #rospy.loginfo("Absolute goal: %s", (x,y))
 
-    if (x < 0) or (x >= cfg.MAP_WIDTH) or (y < 0) or (y >= cfg.MAP_HEIGTH):
+    if (x < 0) or (x >= cfg.MAP_WIDTH) or (y < 0) or (y >= cfg.MAP_HEIGHT):
         cfg.GOAL = None
         rospy.logerr("Goal is out of the working area.")
         return
