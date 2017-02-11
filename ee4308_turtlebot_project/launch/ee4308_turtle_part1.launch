@@ -28,7 +28,7 @@
   <node pkg="ee4308_turtlebot_project" type="odom_true.py" name="odom_correcter" />
   <!--node pkg="ee4308_turtlebot_project" type="navigation.py" name="navigation" /-->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ee4308_turtlebot_project)/rviz/turtlebot.rviz" />
-  <node name="pl_throttler" type="throttle" pkg="topic_tools" args="messages /camera/depth/points 1.0" />
+  <node name="pcl_throttler" type="throttle" pkg="topic_tools" args="messages /camera/depth/points 1.0" />
 
   <!-- Fake laser -->
   <node pkg="nodelet" type="nodelet" name="laserscan_nodelet_manager" args="manager"/>
