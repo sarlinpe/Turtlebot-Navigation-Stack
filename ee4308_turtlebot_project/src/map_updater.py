@@ -5,30 +5,31 @@
 """
 
 import rospy
-from sensor_msgs.msg import PointCloud2, PointField, point_cloud2 as pcl2
-from wall_extractor import extract_walls
+from sensor_msgs.msg import PointCloud2
+from sensor_msgs import point_cloud2 as pcl2
+from math import cos, sin
 import config as cfg
 
 
 def processPcl(pcl_msg, pose):
     h = pcl_msg.height
     w = pcl_msg.width
+    rospy.loginfo("Dimesions of Pcl array: %s", (h,w))
 
-    rospy.loginfo("Dimesions of PL array: %s", (h,w))
-    rospy.loginfo("Field: %s", pcl_msg.fields)
-
+    # Extract ROI from Pcl
     roi = zip(range(w),[int(h/2)]*w)
     pcl = pcl2.read_points(pcl_msg, field_names=("x", "y", "z"), skip_nans=True, uvs=roi)
+
     pcl_global = toGlobalFrame(pcl, pose)
     new_walls = extractWalls(pcl_global)
-
-    # new_map = cfg.MAP + [w for w in new_walls if w not in new_map] # add in navigation.py
-    return new_wall
+    rospy.loginfo("Selected new walls: %s", new_walls)
+    return new_walls
 
 
 def toGlobalFrame(pcl, pose):
     pcl_global = []
-    for (x,y,z) in pcl:
+    for (y,z,x) in pcl: # curious order...
+        y = -y # Y axis is inverted in received message
         X = pose[0] + x*cos(pose[2]) - y*sin(pose[2])
         Y = pose[1] + y*cos(pose[2]) + x*sin(pose[2])
         pcl_global.append((X,Y))
@@ -37,7 +38,7 @@ def toGlobalFrame(pcl, pose):
 
 def extractWalls(pcl):
     candidates = []
-    for (x,y,z) in pcl:
+    for (x,y) in pcl:
         err_norm_x = abs(x - round(x - .5) - .5) - cfg.WALL_THICKNESS/2
         err_norm_y = abs(y - round(y - .5) - .5) - cfg.WALL_THICKNESS/2
         
@@ -47,6 +48,9 @@ def extractWalls(pcl):
             if abs(spread_y) < cfg.TOL_ALONG:
                 x_wall = round(x - 0.5) + 0.5
                 y_wall = round(y)
+                if (x_wall <= -0.5) or (x_wall >= (cfg.MAP_WIDTH-0.5)) or \
+                   (y_wall < 0) or (y_wall >= cfg.MAP_HEIGHT):
+                    continue
                 candidates = addPoint(candidates, x_wall, y_wall)
     
         # Or a horizontal one
@@ -55,8 +59,12 @@ def extractWalls(pcl):
             if abs(spread_x) < cfg.TOL_ALONG:
                 x_wall = round(x)
                 y_wall = round(y - 0.5) + 0.5
+                if (y_wall <= -0.5) or (y_wall >= (cfg.MAP_HEIGHT-0.5)) or \
+                   (x_wall < 0) or (x_wall >= cfg.MAP_WIDTH):
+                    continue
                 candidates = addPoint(candidates, x_wall, y_wall)
 
+    rospy.loginfo("Candidate walls: %s", candidates)
     new_walls = [(x,y) for (x,y,cnt) in candidates if (cnt >= cfg.TOL_NB_PTS)]
     return new_walls
 
@@ -75,7 +83,7 @@ def addPoint(candidates, x_wall, y_wall):
 
 if __name__ == "__main__":
     rospy.init_node("map_updater", anonymous=True)
-    rospy.Subscriber("/camera/depth/points_throttle", PointCloud2, process_pcl)
+    rospy.Subscriber("/camera/depth/points_throttle", PointCloud2, processPcl)
     try:
         rospy.spin()
     except rospy.ROSInterruptException:
