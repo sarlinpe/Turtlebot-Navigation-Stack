@@ -2,8 +2,6 @@
 
 """
     TODO:
-    - switch from Move to Orient if the orientation error is too big (if no global smoothing)
-    - change this simple node to an action node in order to allow the goal to be sent from RViz
     - Should we check that the speed is within a limit (max_speed) to make sure it doesnt run away if it where to get to long away from a point?
 """
 
@@ -18,12 +16,15 @@ class CtrlStates:
 
 class LocalPlanner:
     # Reset the controller, find nearest start point
-    def reset(self, path, pose):
+    def reset(self, path):
         self.ctrl_state = CtrlStates.Orient
         self.sum_theta = 0.
         self.sum_dist = 0.
         self.path = path
-        
+        self.is_init = False
+
+    # Compute first target point of the path from current position
+    def init(self, pose):
         position = (pose[0],pose[1])
         self.pts_cnt = 0
         dist_best = self.dist(path[0], position)
@@ -34,16 +35,20 @@ class LocalPlanner:
             else:
                 dist_best = dist
                 self.pts_cnt = i
-
         dist_next = self.dist(path[i+1], position)
         dist_inter = self.dist(path[i+1], path[i])
         if dist_next < dist_inter:
             self.pts_cnt += 1
-            
+
     # Update the PI controller, including local smoothing
-    def update(self, pos_x, pos_y , theta):
+    def update(self, pose):
+        (pos_x, pos_y , theta) = pose
         v_lin = 0.
         v_ang = 0.
+        
+        if not self.is_init:
+            self.init(pose)
+            self.is_init = True
 
         if self.ctrl_state == CtrlStates.Wait:
             return (v_lin, v_ang)
