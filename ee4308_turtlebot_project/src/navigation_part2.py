@@ -39,7 +39,7 @@ def updateController(odom_msg):
         pose = extractPose(odom_msg)
     if not init:
         setGoal(cfg.GOAL_DEFAULT)
-        init = False
+        init = True
     with controller_lock:
         (v_lin, v_ang) = controller.update(pose)
     cmd.linear.x = v_lin
@@ -58,20 +58,18 @@ def newGoal(goal_msg):
     with pose_lock:
         x = pose[0] + cfg.X_OFFSET + X*cos(pose[2]) - Y*sin(pose[2])
         y = pose[1] + cfg.Y_OFFSET + Y*cos(pose[2]) + X*sin(pose[2])
-    setGoal((x,y))
-
-
-# Sets a new goal and initialize the path
-def setGoal(goal):
-    global goal
-    (x,y) = goal
-    # Check if not out of boundaries
     if (x < 0) or (x >= cfg.MAP_WIDTH) or (y < 0) or (y >= cfg.MAP_HEIGHT):
         rospy.logerr("Goal is out of the working area.")
         return
+    setGoal((int(round(x - cfg.X_OFFSET)),int(round(y - cfg.Y_OFFSET))))
+
+
+# Sets a new goal and initialize the path
+def setGoal(goal_local):
+    global goal
     with goal_lock:
-        goal = (int(round(x - cfg.X_OFFSET)),int(round(y - cfg.Y_OFFSET)))
-        rospy.loginfo("New goal set: %s", goal)
+        goal = goal_local
+    rospy.loginfo("New goal set: %s", goal_local)
     computePath()
 
 

@@ -27,16 +27,16 @@ class LocalPlanner:
     def init(self, pose):
         position = (pose[0],pose[1])
         self.pts_cnt = 0
-        dist_best = self.dist(path[0], position)
-        for i in range(1,len(path)):
-            dist = self.dist(path[i], position)
+        dist_best = self.dist(self.path[0], position)
+        for i in range(1,len(self.path)):
+            dist = self.dist(self.path[i], position)
             if dist > dist_best:
                 break
             else:
                 dist_best = dist
                 self.pts_cnt = i
-        dist_next = self.dist(path[i+1], position)
-        dist_inter = self.dist(path[i+1], path[i])
+        dist_next = self.dist(self.path[i+1], position)
+        dist_inter = self.dist(self.path[i+1], self.path[i])
         if dist_next < dist_inter:
             self.pts_cnt += 1
 
