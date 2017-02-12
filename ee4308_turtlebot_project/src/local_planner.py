@@ -4,6 +4,7 @@
     TODO:
     - switch from Move to Orient if the orientation error is too big (if no global smoothing)
     - change this simple node to an action node in order to allow the goal to be sent from RViz
+    - Should we check that the speed is within a limit (max_speed) to make sure it doesnt run away if it where to get to long away from a point?
 """
 
 import rospy
@@ -16,6 +17,7 @@ class CtrlStates:
 
 
 class LocalPlanner:
+    #resets the path when a new path is calculated
     def reset(self, path, pose):
         self.ctrl_state = CtrlStates.Orient
         self.sum_theta = 0.
@@ -38,7 +40,7 @@ class LocalPlanner:
         if dist_next < dist_inter:
             self.pts_cnt += 1
             
-
+    #The PI controller, will also calculate the local smoothing if enabled
     def update(self, pos_x, pos_y , theta):
         v_lin = 0.
         v_ang = 0.
@@ -99,10 +101,9 @@ class LocalPlanner:
                 else:
                     v_ang = cfg.K_P_ORIENT * err_theta_tot + cfg.K_I_ORIENT * self.sum_theta
                     v_lin = cfg.K_P_DIST * err_dist_tot + cfg.K_I_DIST * self.sum_dist
-#Should we check that the speed is within a limit (max_speed) to make sure it doesnt run away if it where to get to long away from a point?
         return (v_lin, v_ang)
         
-
+    #Helping function to calculate weigthed errors between the distance and orientation, only for local smoothing
     def weighted_errors(self, err_dist, err_theta):
         err_theta_tot = 0
         err_theta_scaling = 0
@@ -117,9 +118,11 @@ class LocalPlanner:
         err_dist_tot /= err_dist_scaling
         return (err_dist_tot, err_theta_tot)
 
+    #Euclidian distance
     def dist(self, p1,p2):
         return sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2))
         
+    #Convert the angle to [-pi,pi] if it's outside this area
     def checkAngle(self, theta):
         if theta > pi:
             return(theta - 2 * pi)
