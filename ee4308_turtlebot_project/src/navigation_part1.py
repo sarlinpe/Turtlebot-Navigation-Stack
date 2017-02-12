@@ -13,7 +13,8 @@ import config as cfg
 
 pose = None
 
-#Update the speed and orientation of the robot and publish path to RViz
+
+# Update the velocity commands and publish path to RViz
 def update(odom_msg):
     global pose, init
     cmd = Twist()
@@ -45,28 +46,26 @@ def extract_pose(odom_msg):
     pos_y = odom_msg.pose.pose.position.y - cfg.Y_OFFSET
     return (pos_x, pos_y, theta)
 
-#Sets a new goal and initialize the path.
+# Sets a new goal and initialize the path
 def new_goal(goal_msg):
     global init
-    x_g = goal_msg.pose.position.x
-    y_g = goal_msg.pose.position.y
-    #rospy.loginfo("Received new goal: %s", (x_g,y_g))
-    #rospy.loginfo("Position is now: %s", (pose[0],pose[1]))
-    x = pose[0] + cfg.X_OFFSET + x_g*cos(pose[2]) - y_g*sin(pose[2])
-    y = pose[1] + cfg.Y_OFFSET + y_g*cos(pose[2]) + x_g*sin(pose[2])
-    #rospy.loginfo("Absolute goal: %s", (x,y))
-
+    # Extract goal positionin frame Odom
+    X = goal_msg.pose.position.x
+    Y = goal_msg.pose.position.y
+    # Convert to Gazebo world frame
+    x = pose[0] + cfg.X_OFFSET + X*cos(pose[2]) - Y*sin(pose[2])
+    y = pose[1] + cfg.Y_OFFSET + Y*cos(pose[2]) + X*sin(pose[2])
+    # Check if not out of boundaries
     if (x < 0) or (x >= cfg.MAP_WIDTH) or (y < 0) or (y >= cfg.MAP_HEIGHT):
         cfg.GOAL = None
         rospy.logerr("Goal is out of the working area.")
         return
-    
+    # Display
     cfg.GOAL = (int(round(x - cfg.X_OFFSET)),int(round(y - cfg.Y_OFFSET)))
     rospy.loginfo("New goal set: %s", cfg.GOAL)
-    initialise_path()
+    initialisePath()
     visualisation.publishPath(path)
     init = False
-
 
 def initialise_path():
     global path

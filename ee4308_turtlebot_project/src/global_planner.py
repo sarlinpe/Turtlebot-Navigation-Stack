@@ -2,10 +2,9 @@
 
 """
     Code is from http://www.redblobgames.com/pathfinding/a-star/implementation.html
-    With adapted data structures (not a real graph)
+    with adapted data structures (custom map topology)
     
     TODO:
-    - create a class that export several search algorithm (A-star, ...)
     - Add exception if goal is outside the defined area
 """
 
@@ -13,6 +12,7 @@ import heapq
 import config as cfg
 
 
+# Useful class for AStar
 class PriorityQueue:
     def __init__(self):
         self.elements = []
@@ -26,23 +26,24 @@ class PriorityQueue:
     def get(self):
         return heapq.heappop(self.elements)[1]
 
-#Gets the (x,y) value for a element in a list
+# Get the coordinates of a node of the graph
 def getPt(idx):
     x = idx % cfg.MAP_WIDTH
     y = int(idx / cfg.MAP_WIDTH)
     return (x, y)
 
-#Gets the element number of a point (x,y)
+# Get the graph index of a grid cell
 def getIdx(pt):
     (x, y) = pt
     return (y * cfg.MAP_WIDTH + x)
 
+# Heuristic function used by AStar
 def heuristic(a, b):
     (x1, y1) = a
     (x2, y2) = b
     return abs(x1 - x2) + abs(y1 - y2)
 
-#Takes in the list of nodes from A_star and backtrack from the goal to build the path
+# Backtrack from the goal to build the path using the list of nodes
 def buildPath(came_from):
     path = []
     current = getIdx(cfg.GOAL)
@@ -51,7 +52,7 @@ def buildPath(came_from):
         current = came_from[current]
     return path
 
-#A_star algorithm that finds the shortest path between two nodes
+# AStar algorithm that finds the shortest path start and goal
 def AStar():
     frontier = PriorityQueue()
     frontier.put(getIdx((cfg.START)), 0)
@@ -61,11 +62,11 @@ def AStar():
     cost_so_far[getIdx(cfg.START)] = 0
     
     while not frontier.empty():
-        current = frontier.get()
-        
+        current = frontier.get() # Get node with lowest priority
         if current == getIdx(cfg.GOAL):
             return buildPath(came_from)
         
+        # Determine reachable nodes
         (x, y) = getPt(current)
         neighbors = [(x + 1, y), (x, y - 1), (x - 1, y), (x, y + 1)]
         rem = []
@@ -76,9 +77,8 @@ def AStar():
                 rem.append(pt)
         neighbors = [getIdx(pt) for pt in neighbors if pt not in rem]
         
-        #Calculate the cost of movement.
         for next in neighbors:
-            #Checks if the path is turning or are straight and gives corresponding weights
+            # Checks if turning or straight path is turning, assign corresponding weights
             if current != getIdx(cfg.START):
                 (x_n, y_n) = getPt(next)
                 (x_p, y_p) = getPt(came_from[current])
@@ -88,18 +88,19 @@ def AStar():
                     move_cost = cfg.COST_MOVE
             else:
                 move_cost = cfg.COST_MOVE
+            # Compute the movement cost from the start (g)
             new_cost = cost_so_far[current] + move_cost
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
+                # Compute the total cost from start to goal through this node (f)
                 priority = new_cost + heuristic(cfg.GOAL, getPt(next))
                 frontier.put(next, priority)
                 came_from[next] = current
-    
     raise ValueError('Goal '+str(cfg.GOAL)+'cannot be reached from'+str(cfg.START))
 
-#Global smoothing of the path
+# Global smoothing taking into account all the points
 def globalSmoothing(path):
-    #Adding points to make the path more dense
+    # Densify the path by adding points
     dense = []
     for i in range(0, len(path) - 1):
         for d in range(0, cfg.SMOOTHING_DENSITY):
@@ -112,7 +113,7 @@ def globalSmoothing(path):
     smoothed = [list(pt) for pt in dense] # convert from tuple to list
     err = cfg.SMOOTHING_TOL
     
-    #Smoothening the dense path
+    # Minimizes the cost function using gradient descent
     while err >= cfg.SMOOTHING_TOL:
         err = 0
         for i in range(1, len(dense) - 1):

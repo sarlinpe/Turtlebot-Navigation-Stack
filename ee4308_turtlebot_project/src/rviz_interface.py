@@ -23,10 +23,9 @@ class RvizInterface:
     
         self.path = Path()
         self.path.header.frame_id = "world"
-    
-    
+
+    # Contruct and publish the path message
     def publishPath(self, path):
-        # Construct Path message
         self.path.poses[:] = []
         for i in range(len(path)):
             p = PoseStamped()
@@ -34,11 +33,9 @@ class RvizInterface:
             p.pose.position.y = path[i][1] + cfg.Y_OFFSET
             p.pose.position.z = 0
             self.path.poses.append(p)
-        # Publish
         self.pub_path.publish(self.path)
-        #rospy.loginfo("Published path.")
     
-    
+    # Contruct and publish the map message (Occupancy Grid)
     def publishMap(self):
             # Initialize 2D map with zeros
             map = []
@@ -48,7 +45,7 @@ class RvizInterface:
                     row.append(0)
                 map.append(row)
 
-            # Add border by setting pixels to 100
+            # Add border
             for i in range(self.map.info.height):
                 map[i][0] = 100
                 map[i][self.map.info.width - 1] = 100
@@ -81,31 +78,3 @@ class RvizInterface:
             self.pub_map.publish(self.map)
             rospy.loginfo("Published map.")
 
-if __name__ == "__main__":
-    width   = 9
-    height  = 9
-    start   = (0,0)
-    goal    = (4,4)
-    walls = [(0.5,0),
-             (0.5,2),
-             (0.5,3),
-             (1.5,0),
-             (1.5,1),
-             (3.5,0),
-             (3.5,1),
-             (3.5,2),
-             (3.5,3),
-             (3.5,4)]
-    path = [(0,0),
-            (0,1),
-            (1,1),
-            (1,2),
-            (2,2),
-            (3,2),
-            (3,3),
-            (3,4),
-            (3,5),
-            (4,5),
-            (4,4)]
-    m = RvizInterface()
-    m.publish(walls,path)

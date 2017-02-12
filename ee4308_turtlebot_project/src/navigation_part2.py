@@ -21,6 +21,7 @@ import config as cfg
 pose = None
 
 
+# Update the velocity commands and publish path to RViz
 def updateController(odom_msg):
     global pose, init
     cmd = Twist()
@@ -41,6 +42,7 @@ def updateController(odom_msg):
     visualisation.publishPath(path)
 
 
+# Sets a new goal and initialize the path
 def newGoal(goal_msg):
     global init
     # Extract goal positionin frame Odom

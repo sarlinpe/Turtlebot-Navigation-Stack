@@ -1,5 +1,5 @@
 """
-    Configuration file for python
+    Configuration file
 """
 
 from math import radians as rad
@@ -64,8 +64,7 @@ COST_TURN = 0.95
 
 
 # SMOOTHING PARAMETERS
-#Disable for part 2 and dynamic path planning
-LOCAL_SMOOTHING  = False
+LOCAL_SMOOTHING  = False # Disable for part 2 and dynamic path planning
 SMOOTH_NB_PTS   = 4
 SMOOTH_WEIGHTS  = [5, 3, 2, 1]
 
