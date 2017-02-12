@@ -13,7 +13,7 @@ import config as cfg
 
 pose = None
 
-
+#Update the speed and orientation of the robot and publish path to RViz
 def update(odom_msg):
     global pose, init
     cmd = Twist()
@@ -33,8 +33,8 @@ def update(odom_msg):
     pub.publish(cmd)
     visualisation.publishPath(path)
 
-def extract_pose(odom_msg):
-    # Extract relevant state variable from Odometry message
+# Extract relevant state variable from Odometry message
+def extract_pose(odom_msg):   
     quaternion = (odom_msg.pose.pose.orientation.x,
                   odom_msg.pose.pose.orientation.y,
                   odom_msg.pose.pose.orientation.z,
@@ -45,7 +45,7 @@ def extract_pose(odom_msg):
     pos_y = odom_msg.pose.pose.position.y - cfg.Y_OFFSET
     return (pos_x, pos_y, theta)
 
-
+#Sets a new goal and initialize the path.
 def new_goal(goal_msg):
     global init
     x_g = goal_msg.pose.position.x
