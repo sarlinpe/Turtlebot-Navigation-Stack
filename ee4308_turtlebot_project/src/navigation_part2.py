@@ -10,6 +10,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Twist, PoseStamped
 from sensor_msgs.msg import PointCloud2
 from tf.transformations import euler_from_quaternion
+from threading import Lock
 from math import cos, sin
 
 from local_planner import LocalPlanner
@@ -18,61 +19,94 @@ from map_updater import processPcl
 from rviz_interface import RvizInterface
 import config as cfg
 
+goal = None
+map = []
 pose = None
 
+# In rospy callbacks can be called in different threads
+controller_lock = Lock()
+pose_lock = Lock()
+map_lock = Lock()
+goal_lock = Lock()
+path_lock = Lock()
 
 # Update the velocity commands and publish path to RViz
 def updateController(odom_msg):
     global pose, init
     cmd = Twist()
     
-    pose = extractPose(odom_msg)
+    with pose_lock:
+        pose = extractPose(odom_msg)
     if not init:
-        initialisePath()
-        init = True
-
-    if cfg.GOAL is None:
-        (v_lin, v_ang) = (0,0)
-    else:
-        (v_lin, v_ang) = controller.update(pose[0], pose[1], pose[2])
-
+        setGoal(cfg.GOAL_DEFAULT)
+        init = False
+    with controller_lock:
+        (v_lin, v_ang) = controller.update(pose)
     cmd.linear.x = v_lin
     cmd.angular.z = v_ang
     pub.publish(cmd)
-    visualisation.publishPath(path)
+    with path_lock:
+        visualisation.publishPath(path)
 
 
-# Sets a new goal and initialize the path
+# Wrapper as a callback
 def newGoal(goal_msg):
-    global init
     # Extract goal positionin frame Odom
     X = goal_msg.pose.position.x
     Y = goal_msg.pose.position.y
     # Convert to Gazebo world frame
-    x = pose[0] + cfg.X_OFFSET + X*cos(pose[2]) - Y*sin(pose[2])
-    y = pose[1] + cfg.Y_OFFSET + Y*cos(pose[2]) + X*sin(pose[2])
+    with pose_lock:
+        x = pose[0] + cfg.X_OFFSET + X*cos(pose[2]) - Y*sin(pose[2])
+        y = pose[1] + cfg.Y_OFFSET + Y*cos(pose[2]) + X*sin(pose[2])
+    setGoal((x,y))
+
+
+# Sets a new goal and initialize the path
+def setGoal(goal):
+    global goal
+    (x,y) = goal
     # Check if not out of boundaries
     if (x < 0) or (x >= cfg.MAP_WIDTH) or (y < 0) or (y >= cfg.MAP_HEIGHT):
-        cfg.GOAL = None
         rospy.logerr("Goal is out of the working area.")
         return
-    # Display
-    cfg.GOAL = (int(round(x - cfg.X_OFFSET)),int(round(y - cfg.Y_OFFSET)))
-    rospy.loginfo("New goal set: %s", cfg.GOAL)
-    initialisePath()
-    visualisation.publishPath(path)
-    init = False
+    with goal_lock:
+        goal = (int(round(x - cfg.X_OFFSET)),int(round(y - cfg.Y_OFFSET)))
+        rospy.loginfo("New goal set: %s", goal)
+    computePath()
 
 
 def updateMap(pcl_msg):
-    new_walls = processPcl(pcl_msg, pose)
+    global map
+    with pose_lock:
+        pose_local = pose # processPcl might take some time, avoid blocking updateController
+    new_walls = processPcl(pcl_msg, pose_local)
     if len(new_walls) == 0:
         return
-    new_map = cfg.WALLS + [w for w in new_walls if w not in cfg.WALLS]
-    # Lock the map and update, or add to a queue that will be pulled by the odom callback.
-    # Maybe in a first place try to publish it to Rviz while still using the true map for planning,
-    # so that we can make sure that the map building is correct
-    # ...
+    new_map = map + [w for w in new_walls if w not in map]
+    with map_lock:
+        pass
+        #map = new_map
+    computePath()
+    visualisation.publishMap(new_map)
+
+
+def computePath():
+    global path
+    with pose_lock:
+        start = (int(round(pose[0])), int(round(pose[1])))
+    with goal_lock:
+        goal_local = goal
+    with map_lock:
+        #rospy.loginfo("Computing path with start %s and goal %s", cfg.START, cfg.GOAL)
+        path_local = pathSearch(start, goal, map)
+    if cfg.GLOBAL_SMOOTHING:
+        path_local = globalSmoothing(path_local)
+    with controller_lock:
+        controller.reset(path_local)
+    with path_lock:
+        path = path_local
+    visualisation.publishPath(path_local)
+    return path
 
 
 def extractPose(odom_msg):
@@ -88,16 +122,6 @@ def extractPose(odom_msg):
     return (pos_x, pos_y, theta)
 
 
-def initialisePath():
-    global path
-    cfg.START = (int(round(pose[0])), int(round(pose[1])))
-    rospy.loginfo("Computing path with start %s and goal %s", cfg.START, cfg.GOAL)
-    path = pathSearch()
-    if cfg.GLOBAL_SMOOTHING:
-        path = globalSmoothing(path)
-    controller.reset(path, pose)
-
-
 if __name__ == "__main__":
     global pub, controller, visualisation, init
     rospy.init_node("navigation", anonymous=True)
@@ -108,7 +132,8 @@ if __name__ == "__main__":
 
     controller = LocalPlanner()
     visualisation = RvizInterface()
-    visualisation.publishMap()
+    if cfg.KNOWN_MAP:
+        visualisation.publishMap(cfg.MAP)
     init = False
     
     try:
