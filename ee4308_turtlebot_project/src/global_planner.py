@@ -44,27 +44,27 @@ def heuristic(a, b):
     return abs(x1 - x2) + abs(y1 - y2)
 
 # Backtrack from the goal to build the path using the list of nodes
-def buildPath(came_from):
+def buildPath(came_from, goal):
     path = []
-    current = getIdx(cfg.GOAL)
+    current = getIdx(goal)
     while current is not None:
         path.insert(0, getPt(current))
         current = came_from[current]
     return path
 
 # AStar algorithm that finds the shortest path start and goal
-def AStar():
+def AStar(start, goal, map):
     frontier = PriorityQueue()
-    frontier.put(getIdx((cfg.START)), 0)
+    frontier.put(getIdx((start)), 0)
     came_from = {}
     cost_so_far = {}
-    came_from[getIdx(cfg.START)] = None
-    cost_so_far[getIdx(cfg.START)] = 0
+    came_from[getIdx(start)] = None
+    cost_so_far[getIdx(start)] = 0
     
     while not frontier.empty():
         current = frontier.get() # Get node with lowest priority
-        if current == getIdx(cfg.GOAL):
-            return buildPath(came_from)
+        if current == getIdx(goal):
+            return buildPath(came_from, goal)
         
         # Determine reachable nodes
         (x, y) = getPt(current)
@@ -73,13 +73,13 @@ def AStar():
         for pt in neighbors:       
             (xp, yp) = pt
             if (xp < 0) or (xp >= cfg.MAP_WIDTH) or (yp < 0) or (yp >= cfg.MAP_HEIGHT) \
-                    or ((( x + xp) / 2., (y + yp) / 2.) in cfg.WALLS):
+                    or ((( x + xp) / 2., (y + yp) / 2.) in map):
                 rem.append(pt)
         neighbors = [getIdx(pt) for pt in neighbors if pt not in rem]
         
         for next in neighbors:
             # Checks if turning or straight path is turning, assign corresponding weights
-            if current != getIdx(cfg.START):
+            if current != getIdx(start):
                 (x_n, y_n) = getPt(next)
                 (x_p, y_p) = getPt(came_from[current])
                 if (x_n is not x_p) and (y_n is not y_p):
@@ -93,10 +93,10 @@ def AStar():
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
                 # Compute the total cost from start to goal through this node (f)
-                priority = new_cost + heuristic(cfg.GOAL, getPt(next))
+                priority = new_cost + heuristic(goal, getPt(next))
                 frontier.put(next, priority)
                 came_from[next] = current
-    raise ValueError('Goal '+str(cfg.GOAL)+'cannot be reached from'+str(cfg.START))
+    raise ValueError('Goal '+str(goal)+'cannot be reached from'+str(start))
 
 # Global smoothing taking into account all the points
 def globalSmoothing(path):

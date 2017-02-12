@@ -36,7 +36,7 @@ class RvizInterface:
         self.pub_path.publish(self.path)
     
     # Contruct and publish the map message (Occupancy Grid)
-    def publishMap(self):
+    def publishMap(self, walls):
             # Initialize 2D map with zeros
             map = []
             for i in range(self.map.info.height):
@@ -54,7 +54,7 @@ class RvizInterface:
                 map[self.map.info.height - 1][j] = 100
 
             # Iterate through the walls, set the pixels accordingly
-            for (x, y) in cfg.WALLS:
+            for (x, y) in walls:
                 if (y % 1) == 0:
                     # Wall is vertical
                     y += cfg.Y_OFFSET
