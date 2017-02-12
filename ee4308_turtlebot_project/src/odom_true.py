@@ -33,7 +33,7 @@ def callback(model_states):
     tfm2 = tf.msg.tfMessage([t2])
     pub_tf.publish(tfm2)
     rospy.loginfo("Published Tf.")
-	
+
 
 def initialize():
     global pub_odom, pub_tf, t, t2
@@ -42,6 +42,7 @@ def initialize():
     pub_odom = rospy.Publisher("/odom_true", Odometry, queue_size=1)
     pub_tf = rospy.Publisher("/tf", tf.msg.tfMessage, queue_size=10, latch=True)
     
+    #Transformation for the world frame
     t = TransformStamped()
     t.header.frame_id = "world"
     t.header.stamp = rospy.Time.now()
