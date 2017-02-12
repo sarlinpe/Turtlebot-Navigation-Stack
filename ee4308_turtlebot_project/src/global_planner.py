@@ -26,11 +26,13 @@ class PriorityQueue:
     def get(self):
         return heapq.heappop(self.elements)[1]
 
+#Gets the (x,y) value for a element in a list
 def getPt(idx):
     x = idx % cfg.MAP_WIDTH
     y = int(idx / cfg.MAP_WIDTH)
     return (x, y)
 
+#Gets the element number of a point (x,y)
 def getIdx(pt):
     (x, y) = pt
     return (y * cfg.MAP_WIDTH + x)
@@ -40,6 +42,7 @@ def heuristic(a, b):
     (x2, y2) = b
     return abs(x1 - x2) + abs(y1 - y2)
 
+#Takes in the list of nodes from A_star and backtrack from the goal to build the path
 def buildPath(came_from):
     path = []
     current = getIdx(cfg.GOAL)
@@ -48,7 +51,7 @@ def buildPath(came_from):
         current = came_from[current]
     return path
 
-
+#A_star algorithm that finds the shortest path between two nodes
 def AStar():
     frontier = PriorityQueue()
     frontier.put(getIdx((cfg.START)), 0)
@@ -73,7 +76,9 @@ def AStar():
                 rem.append(pt)
         neighbors = [getIdx(pt) for pt in neighbors if pt not in rem]
         
+        #Calculate the cost of movement.
         for next in neighbors:
+            #Checks if the path is turning or are straight and gives corresponding weights
             if current != getIdx(cfg.START):
                 (x_n, y_n) = getPt(next)
                 (x_p, y_p) = getPt(came_from[current])
@@ -92,8 +97,9 @@ def AStar():
     
     raise ValueError('Goal '+str(cfg.GOAL)+'cannot be reached from'+str(cfg.START))
 
-
+#Global smoothing of the path
 def globalSmoothing(path):
+    #Adding points to make the path more dense
     dense = []
     for i in range(0, len(path) - 1):
         for d in range(0, cfg.SMOOTHING_DENSITY):
@@ -105,7 +111,8 @@ def globalSmoothing(path):
 
     smoothed = [list(pt) for pt in dense] # convert from tuple to list
     err = cfg.SMOOTHING_TOL
-
+    
+    #Smoothening the dense path
     while err >= cfg.SMOOTHING_TOL:
         err = 0
         for i in range(1, len(dense) - 1):
