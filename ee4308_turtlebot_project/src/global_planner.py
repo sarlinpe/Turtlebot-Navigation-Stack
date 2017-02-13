@@ -9,6 +9,7 @@
 """
 
 import heapq
+from math import pi, atan2, radians as rad
 import config as cfg
 
 
@@ -53,7 +54,7 @@ def buildPath(came_from, goal):
     return path
 
 # AStar algorithm that finds the shortest path start and goal
-def AStar(start, goal, map):
+def AStar(start, goal, map, theta=0):
     frontier = PriorityQueue()
     frontier.put(getIdx((start)), 0)
     came_from = {}
@@ -82,12 +83,17 @@ def AStar(start, goal, map):
             if current != getIdx(start):
                 (x_n, y_n) = getPt(next)
                 (x_p, y_p) = getPt(came_from[current])
-                if (x_n is not x_p) and (y_n is not y_p):
+                if (x_n != x_p) and (y_n != y_p):
                     move_cost = cfg.COST_TURN
                 else:
                     move_cost = cfg.COST_MOVE
             else:
-                move_cost = cfg.COST_MOVE
+                (x_n, y_n) = getPt(next)
+                err_theta = checkAngle(atan2(y_n - start[1], x_n - start[0]) - theta)
+                if abs(err_theta) < rad(45):
+                    move_cost = cfg.COST_LOWER
+                else:
+                    move_cost = cfg.COST_NORMAL
             # Compute the movement cost from the start (g)
             new_cost = cost_so_far[current] + move_cost
             if next not in cost_so_far or new_cost < cost_so_far[next]:
@@ -126,6 +132,13 @@ def globalSmoothing(path):
                 err = err + abs(tmp - smoothed[i][j])
     return smoothed
 
+def checkAngle(theta):
+    if theta > pi:
+        return(theta - 2 * pi)
+    if theta < -pi:
+        return(theta + 2 * pi)
+    else:
+        return(theta)
 
 if __name__ == "__main__":
     try:
