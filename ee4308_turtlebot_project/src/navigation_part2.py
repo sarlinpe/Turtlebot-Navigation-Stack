@@ -19,9 +19,12 @@ from map_updater import processPcl
 from rviz_interface import RvizInterface
 import config as cfg
 
+path_raw = None
+path = None
 goal = None
-map = []
+map_updated = []
 pose = None
+ERROR = False
 
 # In rospy callbacks can be called in different threads
 controller_lock = Lock()
@@ -37,11 +40,15 @@ def updateController(odom_msg):
     
     with pose_lock:
         pose = extractPose(odom_msg)
-    if not init:
-        setGoal(cfg.GOAL_DEFAULT)
-        init = True
-    with controller_lock:
-        (v_lin, v_ang) = controller.update(pose)
+    if ERROR:
+        (v_lin, v_ang) = (0,0)
+        rospy.loginfo("Stopping robot.")
+    else:
+        if not init:
+            setGoal(cfg.GOAL_DEFAULT)
+            init = True
+        with controller_lock:
+            (v_lin, v_ang) = controller.update(pose)
     cmd.linear.x = v_lin
     cmd.angular.z = v_ang
     pub.publish(cmd)
@@ -62,6 +69,8 @@ def newGoal(goal_msg):
         rospy.logerr("Goal is out of the working area.")
         return
     setGoal((int(round(x - cfg.X_OFFSET)),int(round(y - cfg.Y_OFFSET))))
+    with path_lock:    
+        visualisation.publishPath(path)
 
 
 # Sets a new goal and initialize the path
@@ -74,38 +83,64 @@ def setGoal(goal_local):
 
 
 def updateMap(pcl_msg):
-    global map
+    global map_updated
+    #rospy.loginfo("Process PointCloud.")
     with pose_lock:
         pose_local = pose # processPcl might take some time, avoid blocking updateController
-    new_walls = processPcl(pcl_msg, pose_local)
+    detected_walls = processPcl(pcl_msg, pose_local)
+    new_walls = [w for w in detected_walls if w not in map_updated]
     if len(new_walls) == 0:
         return
-    new_map = map + [w for w in new_walls if w not in map]
+    rospy.loginfo("Discovered new walls: %s", new_walls)
+    new_map = map_updated + new_walls
     with map_lock:
-        pass
-        #map = new_map
-    computePath()
+        map_updated = new_map
+    if not cfg.KNOWN_MAP:
+        rospy.loginfo("Map updated, compute new path.")
+        computePath()
     visualisation.publishMap(new_map)
 
 
 def computePath():
-    global path
+    global path, path_raw, ERROR
+    # Create local copies for path, pose, goal
+    with path_lock:
+        path_astar_last = path_raw
     with pose_lock:
         start = (int(round(pose[0])), int(round(pose[1])))
+        theta = pose[2]
     with goal_lock:
         goal_local = goal
-    with map_lock:
-        #rospy.loginfo("Computing path with start %s and goal %s", cfg.START, cfg.GOAL)
-        path_local = pathSearch(start, goal, map)
+    # Compute AStar and smoothed paths
+    try:
+        if cfg.KNOWN_MAP:
+            path_astar = pathSearch(start, goal_local, cfg.MAP, theta)
+        else:
+            with map_lock:
+                path_astar = pathSearch(start, goal_local, map_updated, theta)
+    except ValueError as err:
+        ERROR = True
+        rospy.logerr("%s", err)
+        return
+    else:
+        ERROR = False
     if cfg.GLOBAL_SMOOTHING:
-        path_local = globalSmoothing(path_local)
-    with controller_lock:
-        controller.reset(path_local)
-    with path_lock:
-        path = path_local
-    visualisation.publishPath(path_local)
-    return path
+        path_final = globalSmoothing(path_astar)
+    else:
+        path_final = path_astar
+    # Update if path changed
+    if (path_astar_last is None) or (path_astar[-1] != path_astar_last[-1]) or \
+       (not (set(path_astar) <= set(path_astar_last))) :
+        with path_lock:
+            path = path_final
+            path_raw = path_astar
+        with controller_lock:
+            controller.reset(path_final)
+        rospy.loginfo("Reset controller with new path.")
+    else:
+        rospy.loginfo("Keep same path, no obstacle on path.")
 
+        
 
 def extractPose(odom_msg):
     # Extract relevant state variable from Odometry message
