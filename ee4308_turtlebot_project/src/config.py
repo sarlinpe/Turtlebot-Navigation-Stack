@@ -1,8 +1,15 @@
-"""
-    Configuration file
-"""
+#!/usr/bin/env python
+
+# Title:        EE4308 Turtlebot Project
+# File:         config.py
+# Date:         2017-02-13
+# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Description:  Configuration file containing static parameters used by several modules
+#               for map building, path planning, or low-level control.
+
 
 from math import radians as rad
+
 
 # MAP PARAMETERS
 KNOWN_MAP = False

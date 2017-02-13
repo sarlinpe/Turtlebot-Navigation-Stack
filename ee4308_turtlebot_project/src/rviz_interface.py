@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+# Title:        EE4308 Turtlebot Project
+# File:         rviz_interface.py
+# Date:         2017-02-13
+# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Description:  Publishes the map and path as standard ROS messages to be displayed in Rviz.
+
+
 import rospy
 from nav_msgs.msg import OccupancyGrid, Path
 from geometry_msgs.msg import PoseStamped
@@ -71,10 +78,9 @@ class RvizInterface:
                         map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION - 1)] = 100
 
             self.map.data = []
-            # Flatten map to self.map.data in a row-major order
+            # Flatten map to self.map.data in a row-major order, publish
             for i in range(len(map)):
                 for j in range(len(map[0])):
                     self.map.data.append(map[j][i])
-            # Publish
             self.pub_map.publish(self.map)
 

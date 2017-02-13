@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
-"""
-    TODO: implement thread-safe communication betzeen the callbacks of odom_msg, goal_msg and pcl_msg
-    --> Need to use a lock for pose, cfg.GOAL, and path planning (cfg.MAP when updated ? Or use a queue object...)
-"""
+# Title:        EE4308 Turtlebot Project
+# File:         navigation.py
+# Date:         2017-02-13
+# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Description:  Main node of the navigation scheme. Handles communication with other ROS
+#               components and manages computational units such as local and global
+#               planners or Kinect processor.
+
 
 import rospy
 from nav_msgs.msg import Odometry
@@ -18,6 +22,7 @@ from global_planner import AStar as pathSearch, globalSmoothing
 from map_updater import processPcl
 from rviz_interface import RvizInterface
 import config as cfg
+
 
 path_raw = None
 path = None

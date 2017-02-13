@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
-"""
-    Tested with: pcl = [(0.4,1,0),(0.36,0.6,0), (0.5,1,0), (0.61,0.7,0),(0.36,0.7,0),(0,0.4,0),(0.3,1.36,0)]
-"""
+# Title:        EE4308 Turtlebot Project
+# File:         map_updater.py
+# Date:         2017-02-13
+# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Description:  Kinect processor extracting wall coordinates from the 2D point cloud.
+
 
 import rospy
 from sensor_msgs.msg import PointCloud2
@@ -14,17 +17,15 @@ import config as cfg
 def processPcl(pcl_msg, pose):
     h = pcl_msg.height
     w = pcl_msg.width
-    #rospy.loginfo("Dimesions of Pcl array: %s", (h,w))
-
-    # Extract ROI from Pcl
+    # Isolate ROI from Pcl
     roi = zip(range(w),[int(h/2)]*w)
     pcl = pcl2.read_points(pcl_msg, field_names=("x", "y", "z"), skip_nans=True, uvs=roi)
-
+    # Extract coordinates in world frame
     pcl_global = toGlobalFrame(pcl, pose)
     new_walls = extractWalls(pcl_global)
     return new_walls
 
-
+# Convert from robot frame to global world frame
 def toGlobalFrame(pcl, pose):
     pcl_global = []
     for (y,z,x) in pcl: # curious order...
@@ -34,7 +35,7 @@ def toGlobalFrame(pcl, pose):
         pcl_global.append((X,Y))
     return pcl_global
 
-
+# Find walls from point cloud
 def extractWalls(pcl):
     candidates = []
     for (x,y) in pcl:
@@ -62,12 +63,11 @@ def extractWalls(pcl):
                    (x_wall < 0) or (x_wall >= cfg.MAP_WIDTH):
                     continue
                 candidates = addPoint(candidates, x_wall, y_wall)
-
-    #rospy.loginfo("Candidate walls: %s", candidates)
+    # Filter candidates with enough points
     detected_walls = [(x,y) for (x,y,cnt) in candidates if (cnt >= cfg.TOL_NB_PTS)]
     return detected_walls
 
-
+# Take into account a new wall
 def addPoint(candidates, x_wall, y_wall):
     already_detected = False
     for i in range(len(candidates)):
@@ -78,12 +78,3 @@ def addPoint(candidates, x_wall, y_wall):
     if not already_detected:
         candidates.append([x_wall, y_wall, 1])
     return candidates
-
-
-if __name__ == "__main__":
-    rospy.init_node("map_updater", anonymous=True)
-    rospy.Subscriber("/camera/depth/points_throttle", PointCloud2, processPcl)
-    try:
-        rospy.spin()
-    except rospy.ROSInterruptException:
-        rospy.loginfo("Shutting down node: %s", rospy.get_name())

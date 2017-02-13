@@ -1,19 +1,18 @@
 #!/usr/bin/env python
 
-"""
-    Code is from http://www.redblobgames.com/pathfinding/a-star/implementation.html
-    with adapted data structures (custom map topology)
-    
-    TODO:
-    - Add exception if goal is outside the defined area
-"""
+# Title:        EE4308 Turtlebot Project
+# File:         global_planner.py
+# Date:         2017-02-13
+# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Description:  Global path planner, including path finding, densifying and smoothing.
+
 
 import heapq
 from math import pi, atan2, radians as rad
 import config as cfg
 
 
-# Useful class for AStar
+# Useful queue class for AStar
 class PriorityQueue:
     def __init__(self):
         self.elements = []
@@ -139,13 +138,3 @@ def checkAngle(theta):
         return(theta + 2 * pi)
     else:
         return(theta)
-
-if __name__ == "__main__":
-    try:
-        path = AStar()
-        smoothed = globalSmoothing(path)
-    except ValueError:
-        print("No path found :(")
-    else:
-        print path
-        print smoothed

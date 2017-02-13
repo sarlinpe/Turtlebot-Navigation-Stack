@@ -1,12 +1,21 @@
 #!/usr/bin/env python
 
+# Title:        EE4308 Turtlebot Project
+# File:         odom_true.py
+# Date:         2017-02-13
+# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Description:  Publishes the ground truth state of the robot acquired from Gazebo.
+
+
 import rospy
 import tf
 from gazebo_msgs.msg import ModelStates
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseWithCovariance, Pose, TwistWithCovariance, Twist, TransformStamped
 
+
 robot_name = "mobile_base"
+
 
 def callback(model_states):
     rospy.loginfo("Received ModelStates")
@@ -23,9 +32,6 @@ def callback(model_states):
     msg.pose.pose = model_pose
     msg.twist.twist = model_twist
     pub_odom.publish(msg)
-    
-    #tfm = tf.msg.tfMessage([t])
-    #pub_tf.publish(tfm)
     
     t2.header.stamp = rospy.Time.now()
     t2.transform.translation = model_pose.position
