@@ -14,7 +14,7 @@ import config as cfg
 def processPcl(pcl_msg, pose):
     h = pcl_msg.height
     w = pcl_msg.width
-    rospy.loginfo("Dimesions of Pcl array: %s", (h,w))
+    #rospy.loginfo("Dimesions of Pcl array: %s", (h,w))
 
     # Extract ROI from Pcl
     roi = zip(range(w),[int(h/2)]*w)
@@ -22,7 +22,6 @@ def processPcl(pcl_msg, pose):
 
     pcl_global = toGlobalFrame(pcl, pose)
     new_walls = extractWalls(pcl_global)
-    rospy.loginfo("Selected new walls: %s", new_walls)
     return new_walls
 
 
@@ -64,9 +63,9 @@ def extractWalls(pcl):
                     continue
                 candidates = addPoint(candidates, x_wall, y_wall)
 
-    rospy.loginfo("Candidate walls: %s", candidates)
-    new_walls = [(x,y) for (x,y,cnt) in candidates if (cnt >= cfg.TOL_NB_PTS)]
-    return new_walls
+    #rospy.loginfo("Candidate walls: %s", candidates)
+    detected_walls = [(x,y) for (x,y,cnt) in candidates if (cnt >= cfg.TOL_NB_PTS)]
+    return detected_walls
 
 
 def addPoint(candidates, x_wall, y_wall):
