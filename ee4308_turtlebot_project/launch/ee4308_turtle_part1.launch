@@ -26,7 +26,7 @@
   </node>
 
   <node pkg="ee4308_turtlebot_project" type="odom_true.py" name="odom_correcter" />
-  <node pkg="ee4308_turtlebot_project" type="navigation_part2.py" name="navigation" />
+  <node pkg="ee4308_turtlebot_project" type="navigation.py" name="navigation" />
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ee4308_turtlebot_project)/visualisation/turtlebot.rviz" />
   <node name="pcl_throttler" type="throttle" pkg="topic_tools" args="messages /camera/depth/points 10.0" />
 
