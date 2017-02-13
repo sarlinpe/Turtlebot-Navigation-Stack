@@ -70,11 +70,11 @@ class RvizInterface:
                         map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION)] = 100
                         map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION - 1)] = 100
 
+            self.map.data = []
             # Flatten map to self.map.data in a row-major order
             for i in range(len(map)):
                 for j in range(len(map[0])):
                     self.map.data.append(map[j][i])
             # Publish
             self.pub_map.publish(self.map)
-            rospy.loginfo("Published map.")
 
