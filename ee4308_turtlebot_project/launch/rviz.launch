@@ -1,6 +1,0 @@
-<launch>
-
-  <!-- Show in Rviz   -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ee4308_turtlebot_project)/rviz/turtlebot.rviz"/>
-
-</launch>

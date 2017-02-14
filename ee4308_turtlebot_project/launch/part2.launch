@@ -1,0 +1,19 @@
+<launch>
+
+  <arg name="known_map" value="false" />
+  <arg name="use_kinect" value="true" />
+  <arg name="world_name"  default="$(find ee4308_turtlebot_project)/worlds/ee4308_proj_part2.world"/>
+  
+  <param name="known_map" type="bool" value="$(arg known_map)" />
+  <param name="use_kinect" type="bool" value="$(arg use_kinect)" />
+  
+  <include file="$(find ee4308_turtlebot_project)/launch/includes/turtlebot.launch.xml">
+    <arg name="world_name" value="$(arg world_name)"/>
+  </include>
+  
+  <node pkg="ee4308_turtlebot_project" type="odom_true.py" name="odom_correcter" />
+  <node pkg="ee4308_turtlebot_project" type="navigation.py" name="navigation" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ee4308_turtlebot_project)/visualisation/turtlebot.rviz" />
+  <node name="pcl_throttler" type="throttle" pkg="topic_tools" args="messages /camera/depth/points 10.0" if="$(arg use_kinect)"/>
+
+</launch>
