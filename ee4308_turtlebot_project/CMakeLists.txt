@@ -11,9 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
 	gazebo_msgs
     sensor_msgs 
     message_filters 
-#    OpenCV
-#    cv_bridge 
-#    image_transport
     rospy
     roscpp)
 
