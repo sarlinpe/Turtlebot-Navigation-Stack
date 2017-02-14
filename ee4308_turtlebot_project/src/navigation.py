@@ -38,6 +38,7 @@ map_lock = Lock()
 goal_lock = Lock()
 path_lock = Lock()
 
+
 # Update the velocity commands and publish path to RViz
 def updateController(odom_msg):
     global pose, init
@@ -87,9 +88,9 @@ def setGoal(goal_local):
     computePath()
 
 
+# Process Kinect data, update map accordingly
 def updateMap(pcl_msg):
     global map_updated
-    #rospy.loginfo("Process PointCloud.")
     with pose_lock:
         pose_local = pose # processPcl might take some time, avoid blocking updateController
     detected_walls = processPcl(pcl_msg, pose_local)
@@ -145,10 +146,8 @@ def computePath():
     else:
         rospy.loginfo("Keep same path, no obstacle on path.")
 
-        
-
+# Extract relevant state variables from an Odometry message
 def extractPose(odom_msg):
-    # Extract relevant state variable from Odometry message
     quaternion = (odom_msg.pose.pose.orientation.x,
                   odom_msg.pose.pose.orientation.y,
                   odom_msg.pose.pose.orientation.z,
@@ -163,9 +162,14 @@ def extractPose(odom_msg):
 if __name__ == "__main__":
     global pub, controller, visualisation, init
     rospy.init_node("navigation", anonymous=True)
+    
+    if rospy.has_param("known_map"):
+        cfg.KNOWN_MAP = rospy.get_param("known_map")
+    
     rospy.Subscriber("/odom_true", Odometry, updateController)
     rospy.Subscriber("/move_base_simple/goal", PoseStamped, newGoal)
-    rospy.Subscriber("/camera/depth/points_throttle", PointCloud2, updateMap)
+    if rospy.get_param("use_kinect", default=True):
+        rospy.Subscriber("/camera/depth/points_throttle", PointCloud2, updateMap)
     pub = rospy.Publisher("/cmd_vel_mux/input/teleop", Twist, queue_size=1)
 
     controller = LocalPlanner()
@@ -178,3 +182,4 @@ if __name__ == "__main__":
         rospy.spin()
     except rospy.ROSInterruptException:
         rospy.loginfo("Shutting down node: %s", rospy.get_name())
+
