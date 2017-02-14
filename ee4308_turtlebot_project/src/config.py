@@ -60,7 +60,7 @@ ORIGIN_Z = 0
 
 # MAP BUILDING PARAMETERS
 TOL_NORMAL = 0.1
-TOL_ALONG = 0.25
+TOL_ALONG = 0.20
 TOL_NB_PTS = 30
 
 
@@ -72,7 +72,7 @@ COST_TURN = COST_LOWER
 
 
 # SMOOTHING PARAMETERS
-LOCAL_SMOOTHING  = True # Disable for part 2 and dynamic path planning
+LOCAL_SMOOTHING  = True
 SMOOTH_NB_PTS   = 4
 SMOOTH_WEIGHTS  = [7, 4, 2, 1]
 
@@ -87,13 +87,9 @@ SMOOTHING_DENSITY = 4
 TOL_ORIENT  = 0.01
 TOL_DIST    = 0.1
 THR_ORIENT  = rad(45)
-#K_P_ORIENT  = 0.2
 K_P_ORIENT  = 0.9
-#K_P_DIST    = 0.1
 K_P_DIST    = 0.4
-#K_I_ORIENT  = 5e-5 
 K_I_ORIENT  = 5e-4
-#K_I_DIST    = 3e-4
 K_I_DIST    = 1e-3
 
 MAX_V_LIN = .3

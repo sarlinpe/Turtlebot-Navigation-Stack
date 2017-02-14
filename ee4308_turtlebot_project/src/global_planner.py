@@ -101,7 +101,7 @@ def AStar(start, goal, map, theta=0):
                 priority = new_cost + heuristic(goal, getPt(next))
                 frontier.put(next, priority)
                 came_from[next] = current
-    raise ValueError('Goal '+str(goal)+'cannot be reached from'+str(start))
+    raise ValueError('Goal '+str(goal)+' cannot be reached from '+str(start))
 
 # Global smoothing taking into account all the points
 def globalSmoothing(path):

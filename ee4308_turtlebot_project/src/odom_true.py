@@ -18,7 +18,7 @@ robot_name = "mobile_base"
 
 
 def callback(model_states):
-    rospy.loginfo("Received ModelStates")
+    rospy.logdebug("Received ModelStates")
     try:
         idx = model_states.name.index(robot_name)
     except ValueError:
@@ -38,7 +38,7 @@ def callback(model_states):
     t2.transform.rotation = model_pose.orientation
     tfm2 = tf.msg.tfMessage([t2])
     pub_tf.publish(tfm2)
-    rospy.loginfo("Published Tf.")
+    rospy.logdebug("Published Tf.")
 
 
 def initialize():

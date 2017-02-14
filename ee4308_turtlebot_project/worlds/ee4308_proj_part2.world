@@ -1064,7 +1064,7 @@
           </surface>
           <max_contacts>10</max_contacts>
         </collision>
-        <!--visual name='visual'>
+        <visual name='visual'>
           <cast_shadows>0</cast_shadows>
           <geometry>
             <mesh>
@@ -1072,7 +1072,7 @@
               <scale> 100 100 10</scale>
             </mesh>
           </geometry>
-        </visual-->
+        </visual>
         <velocity_decay>
           <linear>0</linear>
           <angular>0</angular>
