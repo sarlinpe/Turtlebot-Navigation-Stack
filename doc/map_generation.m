@@ -33,6 +33,18 @@ walls = [0.5,0;
          8,0.5;
          8,6.5];
 
+% Print grid
+x = -0.5:1:w+0.5; y = -0.5:1:h+0.5;
+xv = repmat(x',1,2); yv = repmat([y(1),y(end)],length(x),1);
+xh = repmat([x(1),x(end)],length(y),1); yh = repmat(y',1,2);
+for i = 1:length(xv)
+    line(xv(i,:),yv(i,:),'Color',[0.5,0.5,0.5]);
+end
+for i = 1:length(xh)
+    line(xh(i,:),yh(i,:),'Color',[0.5,0.5,0.5]);
+end
+
+% Print walls
 for i = 1:size(walls,1)
     hold on
     if mod(walls(i,1),1) ~= 0
@@ -44,14 +56,8 @@ for i = 1:size(walls,1)
     end
 end
 
+% Setup plot
+box on
 axis equal
 axis([-0.5 w+0.5 -0.5 h+0.5])
 xticks(-1:w+1)
-
-x = -0.5:1:w+0.5; y = -0.5:1:h+0.5;
-xv = repmat(x',1,2); yv = repmat([y(1),y(end)],length(x),1);
-xh = repmat([x(1),x(end)],length(y),1); yh = repmat(y',1,2);
-for i = 1:length(xv)
-    line(xv(i,:),yv(i,:),'Color',[0.5,0.5,0.5]);
-    line(xh(i,:),yh(i,:),'Color',[0.5,0.5,0.5]);
-end
