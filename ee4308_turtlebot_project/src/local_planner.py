@@ -39,9 +39,14 @@ class LocalPlanner:
                 dist_best = dist
                 cnt = i
         if i != (len(self.path)-1):
-            dist_next = self.dist(self.path[i+1], position)
-            dist_inter = self.dist(self.path[i+1], self.path[i])
-            if dist_next < dist_inter:
+            angle = atan2(position[1] - self.path[i][1],
+                            position[0] - self.path[i][0])
+                    - atan2(self.path[i+1][1] - self.path[i][1],
+                            self.path[i+1][0] - self.path[i][0])
+            #dist_next = self.dist(self.path[i+1], position)
+            #dist_inter = self.dist(self.path[i+1], self.path[i])
+            #if dist_next < dist_inter:
+            if(abs(checkAngle(angle)) < pi/2): # meybe decrease the tolerance
                 cnt +=  1
         self.pts_cnt = cnt
 
