@@ -16,10 +16,108 @@ xmax=8.5,
 xtick={-1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9},
 ymin=-0.5,
 ymax=8.5,
-axis background/.style={fill=white},
-axis x line*=bottom,
-axis y line*=left
+axis background/.style={fill=white}
 ]
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	-0.5\\
+-0.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+0.5	-0.5\\
+0.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+1.5	-0.5\\
+1.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+2.5	-0.5\\
+2.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+3.5	-0.5\\
+3.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+4.5	-0.5\\
+4.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+5.5	-0.5\\
+5.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+6.5	-0.5\\
+6.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+7.5	-0.5\\
+7.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+8.5	-0.5\\
+8.5	8.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	-0.5\\
+8.5	-0.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	0.5\\
+8.5	0.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	1.5\\
+8.5	1.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	2.5\\
+8.5	2.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	3.5\\
+8.5	3.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	4.5\\
+8.5	4.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	5.5\\
+8.5	5.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	6.5\\
+8.5	6.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	7.5\\
+8.5	7.5\\
+};
+\addplot [color=gray, forget plot]
+  table[row sep=crcr]{%
+-0.5	8.5\\
+8.5	8.5\\
+};
 \addplot [color=black, line width=4.0pt, forget plot]
   table[row sep=crcr]{%
 0.5	-0.5\\
@@ -169,106 +267,6 @@ axis y line*=left
   table[row sep=crcr]{%
 7.5	6.5\\
 8.5	6.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	-0.5\\
--0.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	-0.5\\
-8.5	-0.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-0.5	-0.5\\
-0.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	0.5\\
-8.5	0.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-1.5	-0.5\\
-1.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	1.5\\
-8.5	1.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-2.5	-0.5\\
-2.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	2.5\\
-8.5	2.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-3.5	-0.5\\
-3.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	3.5\\
-8.5	3.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-4.5	-0.5\\
-4.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	4.5\\
-8.5	4.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-5.5	-0.5\\
-5.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	5.5\\
-8.5	5.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-6.5	-0.5\\
-6.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	6.5\\
-8.5	6.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-7.5	-0.5\\
-7.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	7.5\\
-8.5	7.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
-8.5	-0.5\\
-8.5	8.5\\
-};
-\addplot [color=gray, forget plot]
-  table[row sep=crcr]{%
--0.5	8.5\\
-8.5	8.5\\
 };
 \end{axis}
 \end{tikzpicture}%
