@@ -73,7 +73,8 @@ class LocalPlanner:
                 err_dist.append(sqrt(pow(x - pos_x, 2) + pow(y - pos_y, 2)))
 
             if cfg.LOCAL_SMOOTHING:
-                (err_dist_tot, err_theta_tot) = self.weighted_errors(err_dist, err_theta)
+                (err_dist_tot, err_theta_tot) = self.weighted_errors(err_dist,
+                                                                     err_theta)
             else:
                 err_theta_tot = err_theta[0]
                 err_dist_tot = err_dist[0]
@@ -84,14 +85,16 @@ class LocalPlanner:
             # Control intial orentation
             if self.ctrl_state == CtrlStates.Orient :
                 # Check if satisfactory => start motion
-                if (abs(err_theta_tot) < cfg.TOL_ORIENT) or (err_dist[0] < cfg.TOL_DIST) :
+                if (abs(err_theta_tot) < cfg.TOL_ORIENT) \
+                        or (err_dist[0] < cfg.TOL_DIST) :
                     self.ctrl_state = CtrlStates.Move
                     self.sum_theta = 0.
                     self.sum_dist = 0.
                     continue
                 # Else adjust orientation
                 else:
-                    v_ang = cfg.K_P_ORIENT * err_theta_tot + cfg.K_I_ORIENT * self.sum_theta
+                    v_ang = cfg.K_P_ORIENT * err_theta_tot
+                            + cfg.K_I_ORIENT * self.sum_theta
                     break
             
             # Control motion between waypoints
@@ -107,15 +110,17 @@ class LocalPlanner:
                         self.sum_dist = 0.
                         continue
                 else:
-                    if (abs(err_theta_tot) > cfg.THR_ORIENT):# and (abs(err_theta[0]) > cfg.THR_ORIENT):
-                        rospy.loginfo("Orientation error is too big, turning...")
+                    if (abs(err_theta_tot) > cfg.THR_ORIENT):
+                        rospy.loginfo("Orientation error is too big, turning.")
                         self.ctrl_state = CtrlStates.Orient
                         self.sum_theta = 0.
                         self.sum_dist = 0.
                         continue
                     else:
-                        v_ang = cfg.K_P_ORIENT * err_theta_tot + cfg.K_I_ORIENT * self.sum_theta
-                        v_lin = cfg.K_P_DIST * err_dist_tot + cfg.K_I_DIST * self.sum_dist
+                        v_ang = cfg.K_P_ORIENT * err_theta_tot
+                                + cfg.K_I_ORIENT * self.sum_theta
+                        v_lin = cfg.K_P_DIST * err_dist_tot
+                                + cfg.K_I_DIST * self.sum_dist
                         break
         return self.checkVelocities(v_lin, v_ang)
         

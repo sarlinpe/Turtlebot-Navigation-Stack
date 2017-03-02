@@ -11,7 +11,8 @@ import rospy
 import tf
 from gazebo_msgs.msg import ModelStates
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseWithCovariance, Pose, TwistWithCovariance, Twist, TransformStamped
+from geometry_msgs.msg import PoseWithCovariance, Pose,
+                              TwistWithCovariance, Twist, TransformStamped
 
 
 robot_name = "mobile_base"
@@ -22,7 +23,8 @@ def callback(model_states):
     try:
         idx = model_states.name.index(robot_name)
     except ValueError:
-        rospy.logerr("[ModelStates] Could not find model with name %s", robot_name)
+        rospy.logerr("[ModelStates] Could not find model with name %s",
+                     robot_name)
         return
     
     model_pose = model_states.pose[idx]

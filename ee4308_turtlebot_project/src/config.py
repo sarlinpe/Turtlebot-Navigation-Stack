@@ -4,8 +4,8 @@
 # File:         config.py
 # Date:         2017-02-13
 # Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
-# Description:  Configuration file containing static parameters used by several modules
-#               for map building, path planning, or low-level control.
+# Description:  Configuration file containing static parameters used by several
+#               modules for map building, path planning, or low-level control.
 
 
 from math import radians as rad
@@ -16,7 +16,7 @@ KNOWN_MAP = False
 GOAL_DEFAULT = (4,4)
 MAP_WIDTH   = 9
 MAP_HEIGHT  = 9
-MAP =   [(0.5,0), #begin vertical walls
+MAP =   [(0.5,0), # begin vertical walls
          (0.5,2),
          (0.5,3),
          (1.5,0),
@@ -37,7 +37,7 @@ MAP =   [(0.5,0), #begin vertical walls
          (7.5,2),
          (7.5,3),
          (7.5,6),
-         (0,6.5), #begin horizontal walls
+         (0,6.5), # begin horizontal walls
          (1,3.5),
          (1,6.5),
          (2,5.5),

@@ -4,9 +4,9 @@
 # File:         navigation.py
 # Date:         2017-02-13
 # Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
-# Description:  Main node of the navigation scheme. Handles communication with other ROS
-#               components and manages computational units such as local and global
-#               planners or Kinect processor.
+# Description:  Main node of the navigation scheme. Handles communication with
+#               other ROS components and manages computational units such as
+#               local and global planners or Kinect processor.
 
 
 import rospy
@@ -92,7 +92,7 @@ def setGoal(goal_local):
 def updateMap(pcl_msg):
     global map_updated
     with pose_lock:
-        pose_local = pose # processPcl might take some time, avoid blocking updateController
+        pose_local = pose # avoid blocking updateController
     detected_walls = processPcl(pcl_msg, pose_local)
     new_walls = [w for w in detected_walls if w not in map_updated]
     if len(new_walls) == 0:

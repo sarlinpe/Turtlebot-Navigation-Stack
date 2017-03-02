@@ -4,7 +4,8 @@
 # File:         rviz_interface.py
 # Date:         2017-02-13
 # Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
-# Description:  Publishes the map and path as standard ROS messages to be displayed in Rviz.
+# Description:  Publishes the map and path as standard ROS messages to be
+#               displayed in Rviz.
 
 
 import rospy
@@ -16,7 +17,8 @@ import config as cfg
 
 class RvizInterface:
     def __init__(self):
-        self.pub_map = rospy.Publisher("/map", OccupancyGrid, queue_size=1, latch=True)
+        self.pub_map = rospy.Publisher("/map", OccupancyGrid, queue_size=1,
+                                       latch=True)
         self.pub_path = rospy.Publisher("/path", Path, queue_size=1, latch=True)
     
         self.map = OccupancyGrid()
@@ -67,15 +69,19 @@ class RvizInterface:
                     y += cfg.Y_OFFSET
                     x += cfg.X_OFFSET
                     for i in range(int(1 / cfg.RESOLUTION)):
-                        map[int(x / cfg.RESOLUTION)][int((y - cfg.Y_OFFSET) / cfg.RESOLUTION + i)] = 100
-                        map[int(x / cfg.RESOLUTION - 1)][int((y - cfg.Y_OFFSET) / cfg.RESOLUTION + i)] = 100
+                        map[int(x / cfg.RESOLUTION)] \
+                            [int((y - cfg.Y_OFFSET) / cfg.RESOLUTION + i)] = 100
+                        map[int(x / cfg.RESOLUTION - 1)] \
+                            [int((y - cfg.Y_OFFSET) / cfg.RESOLUTION + i)] = 100
                 else:
                     # Wall is horizontal
                     y += cfg.Y_OFFSET
                     x += cfg.X_OFFSET
                     for i in range(int(1 / cfg.RESOLUTION)):
-                        map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION)] = 100
-                        map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)][int(y / cfg.RESOLUTION - 1)] = 100
+                        map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)] \
+                            [int(y / cfg.RESOLUTION)] = 100
+                        map[int((x - cfg.X_OFFSET) / cfg.RESOLUTION + i)] \
+                            [int(y / cfg.RESOLUTION - 1)] = 100
 
             self.map.data = []
             # Flatten map to self.map.data in a row-major order, publish

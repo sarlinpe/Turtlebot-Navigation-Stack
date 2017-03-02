@@ -4,7 +4,8 @@
 # File:         map_updater.py
 # Date:         2017-02-13
 # Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
-# Description:  Kinect processor extracting wall coordinates from the 2D point cloud.
+# Description:  Kinect processor extracting wall coordinates from the 2D
+#               point cloud.
 
 
 import rospy
@@ -19,7 +20,8 @@ def processPcl(pcl_msg, pose):
     w = pcl_msg.width
     # Isolate ROI from Pcl
     roi = zip(range(w),[int(h/2)]*w)
-    pcl = pcl2.read_points(pcl_msg, field_names=("x", "y", "z"), skip_nans=True, uvs=roi)
+    pcl = pcl2.read_points(pcl_msg, field_names=("x", "y", "z"),
+                           skip_nans=True, uvs=roi)
     # Extract coordinates in world frame
     pcl_global = toGlobalFrame(pcl, pose)
     new_walls = extractWalls(pcl_global)

@@ -4,7 +4,8 @@
 # File:         global_planner.py
 # Date:         2017-02-13
 # Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
-# Description:  Global path planner, including path finding, densifying and smoothing.
+# Description:  Global path planner, including path finding, densifying and
+#               smoothing.
 
 
 import heapq
@@ -72,13 +73,14 @@ def AStar(start, goal, map, theta=0):
         rem = []
         for pt in neighbors:       
             (xp, yp) = pt
-            if (xp < 0) or (xp >= cfg.MAP_WIDTH) or (yp < 0) or (yp >= cfg.MAP_HEIGHT) \
+            if (xp < 0) or (xp >= cfg.MAP_WIDTH)
+                    or (yp < 0) or (yp >= cfg.MAP_HEIGHT) \
                     or ((( x + xp) / 2., (y + yp) / 2.) in map):
                 rem.append(pt)
         neighbors = [getIdx(pt) for pt in neighbors if pt not in rem]
         
         for next in neighbors:
-            # Checks if turning or straight path is turning, assign corresponding weights
+            # Checks if turn or straight path, assign corresponding weights
             if current != getIdx(start):
                 (x_n, y_n) = getPt(next)
                 (x_p, y_p) = getPt(came_from[current])
@@ -88,7 +90,8 @@ def AStar(start, goal, map, theta=0):
                     move_cost = cfg.COST_MOVE
             else:
                 (x_n, y_n) = getPt(next)
-                err_theta = checkAngle(atan2(y_n - start[1], x_n - start[0]) - theta)
+                err_theta = checkAngle(atan2(y_n - start[1], x_n - start[0])
+                                       - theta)
                 if abs(err_theta) < rad(45):
                     move_cost = cfg.COST_LOWER
                 else:
@@ -111,7 +114,8 @@ def globalSmoothing(path):
         for d in range(0, cfg.SMOOTHING_DENSITY):
             pt = []
             for j in range(0, len(path[0])):
-                pt.append(((cfg.SMOOTHING_DENSITY - d) * path[i][j] + d * path[i + 1][j]) / float(cfg.SMOOTHING_DENSITY))
+                pt.append(((cfg.SMOOTHING_DENSITY - d) * path[i][j] \
+                           + d * path[i + 1][j]) / float(cfg.SMOOTHING_DENSITY))
             dense.append(tuple(pt))
     dense.append(path[len(path) - 1])
 
@@ -124,10 +128,10 @@ def globalSmoothing(path):
         for i in range(1, len(dense) - 1):
             for j in range(0, len(dense[0])):
                 tmp = smoothed[i][j]
-                smoothed[i][j] = smoothed[i][j] + \
-                    cfg.SMOOTHING_RATE * (cfg.ALPHA * (dense[i][j] - smoothed[i][j]) + 
-                    (1 - cfg.ALPHA) * (smoothed[i + 1][j] + 
-                    smoothed[i - 1][j] - 2. * smoothed[i][j]))
+                smoothed[i][j] = smoothed[i][j] + cfg.SMOOTHING_RATE *
+                    (cfg.ALPHA * (dense[i][j] - smoothed[i][j]) +
+                     (1 - cfg.ALPHA) * (smoothed[i + 1][j] + smoothed[i - 1][j] -
+                                        2. * smoothed[i][j]))
                 err = err + abs(tmp - smoothed[i][j])
     return smoothed
 
