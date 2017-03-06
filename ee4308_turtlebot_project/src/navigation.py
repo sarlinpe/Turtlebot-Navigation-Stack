@@ -48,7 +48,6 @@ def updateController(odom_msg):
         pose = extractPose(odom_msg)
     if ERROR:
         (v_lin, v_ang) = (0,0)
-        rospy.loginfo("Stopping robot.")
     else:
         if not init:
             setGoal(cfg.GOAL_DEFAULT)

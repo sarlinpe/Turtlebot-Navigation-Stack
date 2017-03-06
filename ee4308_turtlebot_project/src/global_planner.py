@@ -73,7 +73,7 @@ def AStar(start, goal, map, theta=0):
         rem = []
         for pt in neighbors:       
             (xp, yp) = pt
-            if (xp < 0) or (xp >= cfg.MAP_WIDTH)
+            if (xp < 0) or (xp >= cfg.MAP_WIDTH) \
                     or (yp < 0) or (yp >= cfg.MAP_HEIGHT) \
                     or ((( x + xp) / 2., (y + yp) / 2.) in map):
                 rem.append(pt)
@@ -128,7 +128,7 @@ def globalSmoothing(path):
         for i in range(1, len(dense) - 1):
             for j in range(0, len(dense[0])):
                 tmp = smoothed[i][j]
-                smoothed[i][j] = smoothed[i][j] + cfg.SMOOTHING_RATE *
+                smoothed[i][j] = smoothed[i][j] + cfg.SMOOTHING_RATE * \
                     (cfg.ALPHA * (dense[i][j] - smoothed[i][j]) +
                      (1 - cfg.ALPHA) * (smoothed[i + 1][j] + smoothed[i - 1][j] -
                                         2. * smoothed[i][j]))

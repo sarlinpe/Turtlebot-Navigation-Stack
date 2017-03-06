@@ -40,13 +40,10 @@ class LocalPlanner:
                 cnt = i
         if i != (len(self.path)-1):
             angle = atan2(position[1] - self.path[i][1],
-                            position[0] - self.path[i][0])
+                            position[0] - self.path[i][0]) \
                     - atan2(self.path[i+1][1] - self.path[i][1],
                             self.path[i+1][0] - self.path[i][0])
-            #dist_next = self.dist(self.path[i+1], position)
-            #dist_inter = self.dist(self.path[i+1], self.path[i])
-            #if dist_next < dist_inter:
-            if(abs(checkAngle(angle)) < pi/2): # meybe decrease the tolerance
+            if(abs(self.checkAngle(angle)) < pi/2):
                 cnt +=  1
         self.pts_cnt = cnt
 
@@ -98,7 +95,7 @@ class LocalPlanner:
                     continue
                 # Else adjust orientation
                 else:
-                    v_ang = cfg.K_P_ORIENT * err_theta_tot
+                    v_ang = cfg.K_P_ORIENT * err_theta_tot \
                             + cfg.K_I_ORIENT * self.sum_theta
                     break
             
@@ -122,9 +119,9 @@ class LocalPlanner:
                         self.sum_dist = 0.
                         continue
                     else:
-                        v_ang = cfg.K_P_ORIENT * err_theta_tot
+                        v_ang = cfg.K_P_ORIENT * err_theta_tot \
                                 + cfg.K_I_ORIENT * self.sum_theta
-                        v_lin = cfg.K_P_DIST * err_dist_tot
+                        v_lin = cfg.K_P_DIST * err_dist_tot \
                                 + cfg.K_I_DIST * self.sum_dist
                         break
         return self.checkVelocities(v_lin, v_ang)

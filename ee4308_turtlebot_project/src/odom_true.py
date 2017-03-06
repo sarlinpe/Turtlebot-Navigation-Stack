@@ -11,7 +11,7 @@ import rospy
 import tf
 from gazebo_msgs.msg import ModelStates
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseWithCovariance, Pose,
+from geometry_msgs.msg import PoseWithCovariance, Pose, \
                               TwistWithCovariance, Twist, TransformStamped
 
 
