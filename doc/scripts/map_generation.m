@@ -1,3 +1,10 @@
+% Title:        EE4308 Turtlebot Project
+% File:         map_generation.m
+% Date:         2017-02-13
+% Author:       Preben Jensen Hoel (A0158996B) and
+%               Paul-Edouard Sarlin (A0153124U)
+% Description:  Matlab script used to plot an empty map.
+
 clear all; close all;
 
 w = 8; h = 8;
@@ -61,3 +68,4 @@ box on
 axis equal
 axis([-0.5 w+0.5 -0.5 h+0.5])
 xticks(-1:w+1)
+yticks(-1:h+1)
