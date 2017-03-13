@@ -175,6 +175,8 @@ if __name__ == "__main__":
     visualisation = RvizInterface()
     if cfg.KNOWN_MAP:
         visualisation.publishMap(cfg.MAP)
+    else:
+        visualisation.publishMap(map_updated)
     init = False
     
     try:
