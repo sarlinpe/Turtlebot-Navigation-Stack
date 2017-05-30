@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# Title:        EE4308 Turtlebot Project
+# Title:        Turtlebot Navigation Stack
 # File:         map_updater.py
 # Date:         2017-02-13
-# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Author:       Preben Jensen Hoel and Paul-Edouard Sarlin
 # Description:  Kinect processor extracting wall coordinates from the 2D
 #               point cloud.
 

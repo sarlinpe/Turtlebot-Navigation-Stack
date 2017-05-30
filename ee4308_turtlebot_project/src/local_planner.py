@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# Title:        EE4308 Turtlebot Project
+# Title:        Turtlebot Navigation Stack
 # File:         local_planner.py
 # Date:         2017-02-13
-# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Author:       Preben Jensen Hoel and Paul-Edouard Sarlin
 # Description:  Local path planner performing velocity commands computations with
 #               path following and smoothing.
 

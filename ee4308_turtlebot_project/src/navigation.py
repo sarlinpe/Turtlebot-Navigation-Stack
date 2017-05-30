@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# Title:        EE4308 Turtlebot Project
+# Title:        Turtlebot Navigation Stack
 # File:         navigation.py
 # Date:         2017-02-13
-# Author:       Preben Jensen Hoel (A0158996B) and Paul-Edouard Sarlin (A0153124U)
+# Author:       Preben Jensen Hoel and Paul-Edouard Sarlin
 # Description:  Main node of the navigation scheme. Handles communication with
 #               other ROS components and manages computational units such as
 #               local and global planners or Kinect processor.
