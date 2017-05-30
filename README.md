@@ -1,16 +1,15 @@
 # Turtlebot navigation stack
 
-## Scope
 We propose a generic scheme for the indoor navigation of an autonomous robotics system in both known and unknown environments, allowing it to efficiently and safely move between two arbitrary points. The stack, implemented as a ROS package, is validated using Gazebo simulations of a Turtlebot in an intricate room, modelled as a maze.
 
 <p align="center">
-	<img src="doc/plots/path_known_map.png” width="750"/>
+	<img src="doc/plots/path_known_map.png" width="750"/>
 </p>
 
 ## Overview
 
 <p align="center">
-	<img src="doc/plots/git_doc/graph_overview.png” width="750"/>
+	<img src="doc/plots/git_doc/graph_overview.png" width="750"/>
 </p>
 
 * **Map prior**: what is known beforehand (*a priori*) of the environment
